@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Подключение к серверу
-  const API_URL = "http://localhost:3000/api";
+  const API_URL = "/api";
 
   async function registerUserAPI(user) {
     try {
@@ -511,3 +511,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
