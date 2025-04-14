@@ -37,10 +37,12 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, '..')));
+
 
 // Простой маршрут для проверки сервера
 app.get('/', (req, res) => {
-  res.send('Server is running');
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 // Регистрация пользователя
