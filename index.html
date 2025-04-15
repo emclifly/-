@@ -2,11 +2,9 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <!-- Важно для адаптивности -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Онлайн Портфолио Программиста</title>
     <link rel="stylesheet" href="styles.css" />
-    <!-- Подключаем Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
@@ -49,7 +47,6 @@
       <div id="filter-options" style="display:none;">
         <div class="filter-group">
           <p><strong>Фильтр по навыкам:</strong></p>
-          <!-- Важно: здесь value="javascript", а не "js" -->
           <label><input type="checkbox" name="skill" value="html" /> HTML</label>
           <label><input type="checkbox" name="skill" value="css" /> CSS</label>
           <label><input type="checkbox" name="skill" value="javascript" /> JavaScript</label>
@@ -89,9 +86,7 @@
     <main>
       <section class="portfolios">
         <h2>Анкеты пользователей</h2>
-        <div id="portfolio-list" class="portfolio-list">
-          <!-- Здесь будут динамически загружаться анкеты -->
-        </div>
+        <div id="portfolio-list" class="portfolio-list"></div>
         <button id="create-profile-btn" class="create-button">Создать анкету</button>
       </section>
     </main>
@@ -106,9 +101,7 @@
       <div class="modal-content">
         <span class="close" data-modal="modal-profile">×</span>
         <h2>Ваш профиль</h2>
-        <div id="profile-info">
-          <!-- Информация профиля будет добавляться скриптом -->
-        </div>
+        <div id="profile-info"></div>
         <button id="edit-profile-btn" class="secondary">Редактировать профиль</button>
         <button id="logout-btn" class="secondary">Выйти</button>
       </div>
@@ -145,26 +138,17 @@
             <input type="text" name="education" required />
             <span class="error-message"></span>
           </label>
-          <!-- Новое поле "Связаться со мной (тел.)" -->
           <label>
-            Связаться со мной (тел.):
-            <input type="tel" name="phone" maxlength="20" />
+            Телефон:
+            <input type="tel" name="phone" maxlength="20"/>
             <span class="error-message"></span>
           </label>
           <label>
             Фотография:
-            <input
-              type="file"
-              name="photo"
-              accept="image/*"
-              id="profile-photo-input"
-            />
+            <input type="file" name="photo" accept="image/*" />
             <span class="error-message"></span>
           </label>
-          <div id="photo-preview" class="photo-preview"></div>
-          <button type="submit" id="save-profile-btn" class="primary">
-            Сохранить изменения
-          </button>
+          <button type="submit" class="primary">Сохранить изменения</button>
         </form>
       </div>
     </div>
@@ -191,6 +175,27 @@
             <span class="error-message"></span>
           </label>
           <button type="submit" class="primary">Зарегистрироваться</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Модальное окно ввода кода верификации -->
+    <div id="modal-verify" class="modal">
+      <div class="modal-content">
+        <span class="close" data-modal="modal-verify">×</span>
+        <h2>Подтверждение Email</h2>
+        <form id="verify-form">
+          <label>
+            Email:
+            <input type="email" name="email" required />
+            <span class="error-message"></span>
+          </label>
+          <label>
+            Код подтверждения:
+            <input type="text" name="code" required />
+            <span class="error-message"></span>
+          </label>
+          <button type="submit" class="primary">Подтвердить</button>
         </form>
       </div>
     </div>
@@ -225,11 +230,11 @@
       </div>
     </div>
 
-    <!-- Модальное окно создания/редактирования анкеты -->
+    <!-- Модальное окно создания анкеты -->
     <div id="modal-create-profile" class="modal">
       <div class="modal-content">
         <span class="close" data-modal="modal-create-profile">×</span>
-        <h2 id="profile-modal-title">Создать анкету</h2>
+        <h2>Создать анкету</h2>
         <form id="create-profile-form">
           <label>
             ФИО:
@@ -247,15 +252,9 @@
           </label>
           <label>
             Фотография:
-            <input
-              type="file"
-              name="photo"
-              accept="image/*"
-              id="create-profile-photo-input"
-            />
+            <input type="file" name="photo" accept="image/*"/>
             <span class="error-message"></span>
           </label>
-          <div id="create-photo-preview" class="photo-preview"></div>
           <button type="submit" id="save-create-btn" class="create-button">
             Создать
           </button>
@@ -267,7 +266,6 @@
     <div id="modal-view-user" class="modal">
       <div class="modal-content">
         <span class="close" data-modal="modal-view-user">×</span>
-        <!-- В этот блок скриптом будет подставляться профиль владельца -->
         <div class="modal-content-inner"></div>
       </div>
     </div>
@@ -275,24 +273,20 @@
     <!-- Подключение скриптов -->
     <script>
       // Открытие регистрационного модального окна
-      document
-        .getElementById("reg-btn")
-        .addEventListener("click", () => {
-          document.getElementById("registration-form").reset();
-          const modal = document.getElementById("modal-registration");
-          modal.classList.add("show");
-          modal.style.display = "block";
-        });
+      document.getElementById("reg-btn").addEventListener("click", () => {
+        document.getElementById("registration-form").reset();
+        const modal = document.getElementById("modal-registration");
+        modal.classList.add("show");
+        modal.style.display = "block";
+      });
 
-      // Открытие входа
-      document
-        .getElementById("login-btn")
-        .addEventListener("click", () => {
-          document.getElementById("login-form").reset();
-          const modal = document.getElementById("modal-login");
-          modal.classList.add("show");
-          modal.style.display = "block";
-        });
+      // Открытие окна входа
+      document.getElementById("login-btn").addEventListener("click", () => {
+        document.getElementById("login-form").reset();
+        const modal = document.getElementById("modal-login");
+        modal.classList.add("show");
+        modal.style.display = "block";
+      });
     </script>
     <script src="script.js"></script>
   </body>
