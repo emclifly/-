@@ -49,9 +49,10 @@
       <div id="filter-options" style="display:none;">
         <div class="filter-group">
           <p><strong>Фильтр по навыкам:</strong></p>
+          <!-- Важно: здесь value="javascript", а не "js" -->
           <label><input type="checkbox" name="skill" value="html" /> HTML</label>
           <label><input type="checkbox" name="skill" value="css" /> CSS</label>
-          <label><input type="checkbox" name="skill" value="js" /> JavaScript</label>
+          <label><input type="checkbox" name="skill" value="javascript" /> JavaScript</label>
           <label><input type="checkbox" name="skill" value="python" /> Python</label>
           <label><input type="checkbox" name="skill" value="react" /> React</label>
           <label><input type="checkbox" name="skill" value="node" /> Node</label>
@@ -144,6 +145,12 @@
             <input type="text" name="education" required />
             <span class="error-message"></span>
           </label>
+          <!-- Новое поле "Связаться со мной (тел.)" -->
+          <label>
+            Связаться со мной (тел.):
+            <input type="tel" name="phone" maxlength="20" />
+            <span class="error-message"></span>
+          </label>
           <label>
             Фотография:
             <input
@@ -226,16 +233,16 @@
         <form id="create-profile-form">
           <label>
             ФИО:
-            <input type="text" name="fullname" required />
+            <input type="text" name="fullname" required maxlength="100" />
             <span class="error-message"></span>
           </label>
           <label>
             Описание:
-            <textarea name="description" required></textarea>
+            <textarea name="description" required maxlength="1000"></textarea>
             <span class="error-message"></span>
           </label>
           <label>
-            Навыки (через запятую, напр. html, css, js):
+            Навыки (через запятую, напр. html, css, javascript):
             <input type="text" name="skills" />
           </label>
           <label>
@@ -256,15 +263,25 @@
       </div>
     </div>
 
-    <!-- Подключение файла скрипта -->
+    <!-- Модальное окно просмотра чужого профиля -->
+    <div id="modal-view-user" class="modal">
+      <div class="modal-content">
+        <span class="close" data-modal="modal-view-user">×</span>
+        <!-- В этот блок скриптом будет подставляться профиль владельца -->
+        <div class="modal-content-inner"></div>
+      </div>
+    </div>
+
+    <!-- Подключение скриптов -->
     <script>
       // Открытие регистрационного модального окна
       document
         .getElementById("reg-btn")
         .addEventListener("click", () => {
           document.getElementById("registration-form").reset();
-          document.getElementById("modal-registration").classList.add("show");
-          document.getElementById("modal-registration").style.display = "block";
+          const modal = document.getElementById("modal-registration");
+          modal.classList.add("show");
+          modal.style.display = "block";
         });
 
       // Открытие входа
@@ -272,8 +289,9 @@
         .getElementById("login-btn")
         .addEventListener("click", () => {
           document.getElementById("login-form").reset();
-          document.getElementById("modal-login").classList.add("show");
-          document.getElementById("modal-login").style.display = "block";
+          const modal = document.getElementById("modal-login");
+          modal.classList.add("show");
+          modal.style.display = "block";
         });
     </script>
     <script src="script.js"></script>
