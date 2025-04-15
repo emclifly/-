@@ -1,3 +1,4 @@
+// script.js
 document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------------------------
   // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -94,6 +95,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function verifyEmailAPI(email, code) {
+    try {
+      const res = await fetch(`${API_URL}/verify-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка подтверждения email:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
   async function loginUserAPI(email, password) {
     try {
       const res = await fetch(`${API_URL}/login`, {
@@ -146,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Получить профиль другого пользователя (по ID)
   async function getUserProfileById(userId) {
     try {
       const res = await fetch(`${API_URL}/profile/${userId}`);
@@ -157,8 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // *** Новый эндпоинт для добавления/убирания анкеты из избранного (на сервере)
-  // PUT /api/users/:userId/favorites  { portfolioId }
+  // Новый эндпоинт для добавления/убирания анкеты из избранного
   async function toggleFavoriteAPI(userId, portfolioId) {
     try {
       const res = await fetch(`${API_URL}/users/${userId}/favorites`, {
@@ -186,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------------------------------------------
-  // ФУНКЦИЯ: ПОЛУЧИТЬ ВСЕ АНКЕТЫ, ПРИМЕНИТЬ ФИЛЬТРЫ, ОТСОРТИРОВАТЬ, ОТОБРАЗИТЬ
+  // ФУНКЦИЯ ПОЛУЧЕНИЯ+ФИЛЬТРАЦИИ+СОРТИРОВКИ АНКЕТ
   // ---------------------------------------------
   async function filterAndRenderPortfolios() {
     const result = await getPortfoliosAPI();
@@ -195,10 +208,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     let portfolios = result.portfolios || [];
-
     const user = getCurrentUser();
 
-    // 1) Поиск (search input)
+    // 1) Поиск
     const query = searchInput.value.trim().toLowerCase();
     if (query) {
       portfolios = portfolios.filter((p) =>
@@ -206,30 +218,26 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // 2) Фильтр по навыкам (чекбоксы)
+    // 2) Фильтр по навыкам
     const skills = Array.from(document.querySelectorAll('input[name="skill"]:checked'))
       .map((checkbox) => checkbox.value);
 
     if (skills.length > 0) {
       portfolios = portfolios.filter((p) =>
-        // проверяем, что ВСЕ выбранные skill есть в p.skills
         skills.every((skill) => p.skills.includes(skill))
       );
     }
 
-    // 3) «Только избранные»
+    // 3) "Только избранные"
     const isFavoriteOnly = document.getElementById("filter-favorite").checked;
     if (isFavoriteOnly && user) {
-      // Берём только те анкеты, чей ID есть в user.favorites
-      // (user.favorites может быть undefined)
       const favs = user.favorites || [];
       portfolios = portfolios.filter((p) => favs.includes(String(p.id)));
     }
 
-    // 4) Дата (date-from / date-to)
+    // 4) Фильтр по дате
     const dateFromValue = document.getElementById("date-from").value;
     const dateToValue = document.getElementById("date-to").value;
-
     if (dateFromValue) {
       const fromDate = new Date(dateFromValue);
       portfolios = portfolios.filter((p) => new Date(p.createdAt) >= fromDate);
@@ -240,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
       portfolios = portfolios.filter((p) => new Date(p.createdAt) <= toDate);
     }
 
-    // 5) Сортировка (select)
+    // 5) Сортировка
     const sortBy = document.getElementById("sort-select").value;
     switch (sortBy) {
       case "date_desc":
@@ -257,9 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
         break;
     }
 
-    // 6) Всегда показываем «избранные» выше остальных
-    // (даже если не включен фильтр «только избранные»).
-    // Если пользователь не залогинен или нет favorites, пропустим
+    // 6) Избранные выше остальных
     if (user && user.favorites) {
       portfolios.sort((a, b) => {
         const aFav = user.favorites.includes(String(a.id));
@@ -270,12 +276,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Наконец, отрисовываем
+    // Отрисовываем
     renderPortfolios(portfolios);
   }
 
   // ---------------------------------------------
-  // РЕНДЕР СПИСКА АНКЕТ
+  // ОТОБРАЖЕНИЕ СПИСКА АНКЕТ
   // ---------------------------------------------
   function renderPortfolios(portfolios) {
     const portfolioList = document.getElementById("portfolio-list");
@@ -299,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </p>
       `;
 
-      // Кнопка "Посмотреть профиль владельца" (если ownerId есть)
+      // Кнопка "Профиль владельца"
       if (portfolio.ownerId) {
         const viewProfileBtn = document.createElement("button");
         viewProfileBtn.className = "primary";
@@ -316,32 +322,31 @@ document.addEventListener("DOMContentLoaded", () => {
         portfolioCard.appendChild(viewProfileBtn);
       }
 
-      // Если залогинены и это **НЕ** наша анкета, можно «добавить в избранное»
-      if (currentUser && currentUser.id !== portfolio.ownerId) {
+      // Кнопка избранного (если анкета не моя)
+      if (
+        currentUser &&
+        String(currentUser.id) !== String(portfolio.ownerId) // чужая анкета
+      ) {
         const userFavs = currentUser.favorites || [];
         const isFav = userFavs.includes(String(portfolio.id));
-
         const favBtn = document.createElement("button");
         favBtn.className = "secondary";
         favBtn.textContent = isFav ? "Убрать из избранного" : "В избранное";
         favBtn.style.marginRight = "10px";
         favBtn.addEventListener("click", async () => {
-          // Вызываем toggleFavoriteAPI
           const toggleRes = await toggleFavoriteAPI(currentUser.id, String(portfolio.id));
           if (toggleRes.error) {
             showToast(toggleRes.error, "error");
           } else {
-            // toggleRes.user — обновлённый объект пользователя
             setCurrentUser(toggleRes.user);
             showToast("Избранное изменено!");
-            // Переприменяем фильтр, чтобы сразу увидеть изменения
             filterAndRenderPortfolios();
           }
         });
         portfolioCard.appendChild(favBtn);
       }
 
-      // Если это наша анкета — кнопка "Удалить"
+      // Кнопка "Удалить" (только если это моя анкета)
       if (currentUser && currentUser.email === portfolio.owner) {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "delete";
@@ -365,13 +370,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------------------------------------------
-  // ПОКАЗ ЧУЖОГО ПРОФИЛЯ (новое модальное окно)
+  // ПОКАЗ ЧУЖОГО ПРОФИЛЯ
   // ---------------------------------------------
   function showUserProfileModal(userData) {
-    // Ищем модал "modal-view-user"
     const modalViewUser = document.getElementById("modal-view-user");
     if (!modalViewUser) return;
-
     const contentDiv = modalViewUser.querySelector(".modal-content-inner");
     contentDiv.innerHTML = `
       <h2>Профиль пользователя</h2>
@@ -385,33 +388,38 @@ document.addEventListener("DOMContentLoaded", () => {
       <p><strong>Образование:</strong> ${userData.education || ""}</p>
       <p><strong>Телефон:</strong> ${userData.phone || ""}</p>
     `;
-
     openModal("modal-view-user");
   }
 
   // ---------------------------------------------
-  // ПЕРЕМЕННЫЕ ДЛЯ ПОИСКА / ФИЛЬТРА
+  // ЭЛЕМЕНТЫ ДЛЯ ФИЛЬТРА
   // ---------------------------------------------
   const searchInput = document.getElementById("search-input");
   const applyFilterBtn = document.getElementById("apply-filter-btn");
+  const filterToggle = document.getElementById("filter-toggle");
+  const filterOptions = document.getElementById("filter-options");
 
-  // ---------------------------------------------
-  // ПРИ ЗАГРУЗКЕ - СРАЗУ ПРИМЕНИМ ФИЛЬТРЫ
-  // ---------------------------------------------
+  // Показ/скрытие блока с опциями фильтра
+  filterToggle.addEventListener("click", () => {
+    filterOptions.style.display =
+      filterOptions.style.display === "none" ? "block" : "none";
+  });
+
+  // При загрузке — сразу фильтруем и выводим
   filterAndRenderPortfolios();
 
-  // При изменении поля поиска - фильтруем
+  // Поиск (при вводе)
   searchInput.addEventListener("input", () => {
     filterAndRenderPortfolios();
   });
 
-  // При нажатии «Применить фильтр» - фильтруем
+  // Кнопка "Применить фильтр"
   applyFilterBtn.addEventListener("click", () => {
     filterAndRenderPortfolios();
   });
 
   // ---------------------------------------------
-  // РЕГИСТРАЦИЯ
+  // РЕГИСТРАЦИЯ (Шаг 1)
   // ---------------------------------------------
   const regForm = document.getElementById("registration-form");
   if (regForm) {
@@ -433,8 +441,39 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(result.error, "error");
         submitBtn.disabled = false;
       } else {
-        showToast("Регистрация успешна!");
+        showToast("Код отправлен на почту. Подтвердите email.");
         closeModal("modal-registration");
+
+        // Откроем форму verify
+        document.getElementById("verify-form").reset();
+        openModal("modal-verify");
+      }
+    });
+  }
+
+  // ---------------------------------------------
+  // ВЕРИФИКАЦИЯ (Шаг 2)
+  // ---------------------------------------------
+  const verifyForm = document.getElementById("verify-form");
+  if (verifyForm) {
+    verifyForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validateForm(verifyForm)) return;
+
+      const submitBtn = verifyForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      const formData = new FormData(verifyForm);
+      const email = formData.get("email");
+      const code = formData.get("code");
+
+      const result = await verifyEmailAPI(email, code);
+      if (result.error) {
+        showToast(result.error, "error");
+        submitBtn.disabled = false;
+      } else {
+        showToast("Email подтверждён! Теперь можете войти.");
+        closeModal("modal-verify");
       }
     });
   }
@@ -463,7 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Вход успешен!");
         closeModal("modal-login");
         updateCurrentUserName();
-        filterAndRenderPortfolios(); // Обновим список, вдруг нужно показать избранные
+        filterAndRenderPortfolios();
       }
     });
   }
@@ -561,7 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Профиль обновлён!");
             closeModal("modal-edit-profile");
             updateCurrentUserName();
-            filterAndRenderPortfolios(); // вдруг надо что-то пересчитать
+            filterAndRenderPortfolios();
           }
         };
         reader.readAsDataURL(photoFile);
@@ -627,13 +666,13 @@ document.addEventListener("DOMContentLoaded", () => {
               .filter((s) => s)
           : [],
         owner: user.email,
-        ownerId: user.id
+        ownerId: user.id,
       };
 
       const photoFile = formData.get("photo");
       if (photoFile && photoFile.size > 0) {
-        if (photoFile.size > 2 * 1024 * 1024) {
-          showToast("Максимальный размер фото — 2 МБ", "error");
+        if (photoFile.size > 5 * 1024 * 1024) {
+          showToast("Максимальный размер фото — 5 МБ", "error");
           submitBtn.disabled = false;
           return;
         }
@@ -647,7 +686,6 @@ document.addEventListener("DOMContentLoaded", () => {
           } else {
             showToast("Анкета создана!");
             closeModal("modal-create-profile");
-            // После создания заново фильтруем
             filterAndRenderPortfolios();
           }
         };
@@ -677,7 +715,6 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Вы вышли из системы.");
       updateCurrentUserName();
       closeModal("modal-profile");
-      // При выходе тоже обновим отображение
       filterAndRenderPortfolios();
     });
   }
