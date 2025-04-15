@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Вспомогательные функции
+  // ---------------------------------------------
+  // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+  // ---------------------------------------------
   function showToast(message, type = "info") {
     const toastContainer = document.getElementById("toast-container");
     if (!toastContainer) return;
@@ -17,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function validateForm(form) {
     let valid = true;
     form.querySelectorAll("input[required], textarea[required]").forEach((input) => {
-      // Следующий братский элемент — это span.error-message
       const errorSpan = input.nextElementSibling;
       if (!input.value.trim()) {
         errorSpan.textContent = "Это поле обязательно";
@@ -74,7 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Подключение к серверу
+  // ---------------------------------------------
+  // API-ФУНКЦИИ
+  // ---------------------------------------------
   const API_URL = "/api";
 
   async function registerUserAPI(user) {
@@ -143,10 +146,53 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Отрисовка списка анкет
+  // Получить профиль другого пользователя (по ID)
+  async function getUserProfileById(userId) {
+    try {
+      const res = await fetch(`${API_URL}/profile/${userId}`);
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка загрузки профиля:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
+  // Удаление анкеты
+  async function deletePortfolioAPI(id) {
+    try {
+      const res = await fetch(`${API_URL}/portfolios/${id}`, {
+        method: "DELETE",
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка удаления анкеты:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
+  // Обновить данные анкеты (например, favorite)
+  async function updatePortfolioAPI(id, updateData) {
+    try {
+      const res = await fetch(`${API_URL}/portfolios/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка обновления анкеты:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
+  // ---------------------------------------------
+  // РЕНДЕР СПИСКА АНКЕТ
+  // ---------------------------------------------
   function renderPortfolios(portfolios) {
     const portfolioList = document.getElementById("portfolio-list");
     portfolioList.innerHTML = "";
+    const currentUser = getCurrentUser();
+
     portfolios.forEach((portfolio) => {
       const portfolioCard = document.createElement("div");
       portfolioCard.className = "portfolio-card";
@@ -168,11 +214,95 @@ document.addEventListener("DOMContentLoaded", () => {
             : ""
         }
       `;
+
+      // Кнопка "Посмотреть профиль владельца" (если ownerId есть)
+      if (portfolio.ownerId) {
+        const viewProfileBtn = document.createElement("button");
+        viewProfileBtn.className = "primary";
+        viewProfileBtn.textContent = "Профиль владельца";
+        viewProfileBtn.style.marginRight = "10px";
+        viewProfileBtn.addEventListener("click", async () => {
+          const result = await getUserProfileById(portfolio.ownerId);
+          if (result.error) {
+            showToast(result.error, "error");
+          } else {
+            showUserProfileModal(result.user);
+          }
+        });
+        portfolioCard.appendChild(viewProfileBtn);
+      }
+
+      // Кнопка "В избранное / Убрать из избранного"
+      // Логика: только владелец анкеты может менять "избранное"
+      if (currentUser && currentUser.email === portfolio.owner) {
+        const favBtn = document.createElement("button");
+        favBtn.className = "secondary";
+        favBtn.textContent = portfolio.favorite ? "Убрать из избранного" : "В избранное";
+        favBtn.style.marginRight = "10px";
+        favBtn.addEventListener("click", async () => {
+          const newFavorite = !portfolio.favorite;
+          const updateRes = await updatePortfolioAPI(portfolio.id, { favorite: newFavorite });
+          if (updateRes.error) {
+            showToast(updateRes.error, "error");
+          } else {
+            showToast("Избранное изменено!");
+            loadPortfolios();
+          }
+        });
+        portfolioCard.appendChild(favBtn);
+      }
+
+      // Кнопка "Удалить анкету" (только владелец)
+      if (currentUser && currentUser.email === portfolio.owner) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete";
+        deleteBtn.textContent = "Удалить";
+        deleteBtn.addEventListener("click", async () => {
+          if (confirm("Вы действительно хотите удалить эту анкету?")) {
+            const result = await deletePortfolioAPI(portfolio.id);
+            if (result.error) {
+              showToast(result.error, "error");
+            } else {
+              showToast("Анкета удалена!");
+              loadPortfolios();
+            }
+          }
+        });
+        portfolioCard.appendChild(deleteBtn);
+      }
+
       portfolioList.appendChild(portfolioCard);
     });
   }
 
-  // Загрузка и отображение анкет
+  // ---------------------------------------------
+  // ПОКАЗ ЧУЖОГО ПРОФИЛЯ (новое модальное окно)
+  // ---------------------------------------------
+  function showUserProfileModal(userData) {
+    // Ищем модал "modal-view-user"
+    const modalViewUser = document.getElementById("modal-view-user");
+    if (!modalViewUser) return;
+
+    const contentDiv = modalViewUser.querySelector(".modal-content-inner");
+    contentDiv.innerHTML = `
+      <h2>Профиль пользователя</h2>
+      <div class="photo-container">
+        ${userData.photo ? `<img src="${userData.photo}" alt="Фото"/>` : ""}
+      </div>
+      <p><strong>Имя:</strong> ${userData.name || ""}</p>
+      <p><strong>Возраст:</strong> ${userData.age || ""}</p>
+      <p><strong>Место проживания:</strong> ${userData.location || ""}</p>
+      <p><strong>Стаж работы:</strong> ${userData.experience || ""}</p>
+      <p><strong>Образование:</strong> ${userData.education || ""}</p>
+      <p><strong>Телефон:</strong> ${userData.phone || ""}</p>
+    `;
+
+    openModal("modal-view-user");
+  }
+
+  // ---------------------------------------------
+  // ЗАГРУЗКА АНКЕТ
+  // ---------------------------------------------
   async function loadPortfolios() {
     const result = await getPortfoliosAPI();
     if (result.error) {
@@ -183,7 +313,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   loadPortfolios();
 
-  // Фильтр по вводу (поиск)
+  // ---------------------------------------------
+  // ФИЛЬТР ПО ВВОДУ (ПОИСК ФИО)
+  // ---------------------------------------------
   const searchInput = document.getElementById("search-input");
   searchInput.addEventListener("input", async () => {
     const query = searchInput.value.trim().toLowerCase();
@@ -198,7 +330,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPortfolios(filteredPortfolios);
   });
 
-  // Отображение фильтров
+  // ---------------------------------------------
+  // ФИЛЬТРЫ (НАВЫКИ, ИЗБРАННОЕ, ДАТА, СОРТ)
+  // ---------------------------------------------
   const filterToggle = document.getElementById("filter-toggle");
   const filterOptions = document.getElementById("filter-options");
   filterToggle.addEventListener("click", () => {
@@ -206,7 +340,6 @@ document.addEventListener("DOMContentLoaded", () => {
       filterOptions.style.display === "none" ? "block" : "none";
   });
 
-  // Применение фильтра
   const applyFilterBtn = document.getElementById("apply-filter-btn");
   applyFilterBtn.addEventListener("click", async () => {
     const skills = Array.from(
@@ -231,10 +364,12 @@ document.addEventListener("DOMContentLoaded", () => {
         skills.every((skill) => portfolio.skills.includes(skill))
       );
     }
+
     // Только избранные
     if (isFavoriteOnly) {
       filteredPortfolios = filteredPortfolios.filter((p) => p.favorite);
     }
+
     // Фильтр по дате
     if (dateFrom) {
       const fromDate = new Date(dateFrom);
@@ -244,7 +379,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (dateTo) {
       const toDate = new Date(dateTo);
-      // чтобы включить день "dateTo", берём конец текущих суток
       toDate.setHours(23, 59, 59, 999);
       filteredPortfolios = filteredPortfolios.filter(
         (p) => new Date(p.createdAt) <= toDate
@@ -266,15 +400,23 @@ document.addEventListener("DOMContentLoaded", () => {
         filteredPortfolios.sort((a, b) => b.fullname.localeCompare(a.fullname));
         break;
     }
+
     renderPortfolios(filteredPortfolios);
   });
 
-  // Регистрация
+  // ---------------------------------------------
+  // РЕГИСТРАЦИЯ
+  // ---------------------------------------------
   const regForm = document.getElementById("registration-form");
   if (regForm) {
     regForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm(regForm)) return;
+
+      // Чтобы предотвратить дубли, отключим кнопку
+      const submitBtn = regForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
       const formData = new FormData(regForm);
       const user = {
         name: formData.get("name"),
@@ -284,6 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await registerUserAPI(user);
       if (result.error) {
         showToast(result.error, "error");
+        submitBtn.disabled = false;
       } else {
         showToast("Регистрация успешна!");
         closeModal("modal-registration");
@@ -291,18 +434,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Вход
+  // ---------------------------------------------
+  // ВХОД
+  // ---------------------------------------------
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm(loginForm)) return;
+
+      // Отключаем кнопку, чтобы исключить двойное нажатие
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
       const formData = new FormData(loginForm);
       const email = formData.get("email");
       const password = formData.get("password");
       const result = await loginUserAPI(email, password);
       if (result.error) {
         showToast(result.error, "error");
+        submitBtn.disabled = false;
       } else {
         setCurrentUser(result.user);
         showToast("Вход успешен!");
@@ -312,7 +463,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Кнопка "Профиль" — показать текущий профиль
+  // ---------------------------------------------
+  // ПРОСМОТР СОБСТВЕННОГО ПРОФИЛЯ
+  // ---------------------------------------------
   const profileBtn = document.getElementById("profile-btn");
   if (profileBtn) {
     profileBtn.addEventListener("click", () => {
@@ -322,7 +475,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const profileInfo = document.getElementById("profile-info");
-      // Заполним блок информацией о пользователе
       profileInfo.innerHTML = `
         <div class="photo-container">
           ${user.photo ? `<img src="${user.photo}" alt="Фото" />` : ""}
@@ -332,12 +484,15 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Место проживания:</strong> ${user.location || ""}</p>
         <p><strong>Стаж работы:</strong> ${user.experience || ""}</p>
         <p><strong>Образование:</strong> ${user.education || ""}</p>
+        <p><strong>Телефон:</strong> ${user.phone || ""}</p>
       `;
       openModal("modal-profile");
     });
   }
 
-  // Кнопка "Редактировать профиль"
+  // ---------------------------------------------
+  // РЕДАКТИРОВАНИЕ ПРОФИЛЯ
+  // ---------------------------------------------
   const editProfileBtn = document.getElementById("edit-profile-btn");
   if (editProfileBtn) {
     editProfileBtn.addEventListener("click", () => {
@@ -352,19 +507,25 @@ document.addEventListener("DOMContentLoaded", () => {
       editForm.location.value = user.location || "";
       editForm.experience.value = user.experience || "";
       editForm.education.value = user.education || "";
+      editForm.phone.value = user.phone || ""; // Добавлено новое поле
       openModal("modal-edit-profile");
     });
   }
 
-  // Сохранение изменений профиля
   const editProfileForm = document.getElementById("edit-profile-form");
   if (editProfileForm) {
     editProfileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm(editProfileForm)) return;
+
+      // Отключаем кнопку
+      const submitBtn = editProfileForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
       const user = getCurrentUser();
       if (!user) {
         showToast("Сначала войдите в систему.");
+        submitBtn.disabled = false;
         return;
       }
       const formData = new FormData(editProfileForm);
@@ -374,15 +535,24 @@ document.addEventListener("DOMContentLoaded", () => {
         location: formData.get("location"),
         experience: formData.get("experience"),
         education: formData.get("education"),
+        phone: formData.get("phone"),
       };
+
       const photoFile = formData.get("photo");
       if (photoFile && photoFile.size > 0) {
+        // проверка размера файла (2 МБ)
+        if (photoFile.size > 2 * 1024 * 1024) {
+          showToast("Максимальный размер фото — 2 МБ", "error");
+          submitBtn.disabled = false;
+          return;
+        }
         const reader = new FileReader();
         reader.onload = async (event) => {
           updatedData.photo = event.target.result;
           const res = await updateUserProfile(user.id, updatedData);
           if (res.error) {
             showToast(res.error, "error");
+            submitBtn.disabled = false;
           } else {
             setCurrentUser(res.user);
             showToast("Профиль обновлён!");
@@ -396,6 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await updateUserProfile(user.id, updatedData);
         if (res.error) {
           showToast(res.error, "error");
+          submitBtn.disabled = false;
         } else {
           setCurrentUser(res.user);
           showToast("Профиль обновлён!");
@@ -406,7 +577,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Кнопка "Создать анкету"
+  // ---------------------------------------------
+  // СОЗДАНИЕ НОВОЙ АНКЕТЫ
+  // ---------------------------------------------
   const createProfileBtn = document.getElementById("create-profile-btn");
   if (createProfileBtn) {
     createProfileBtn.addEventListener("click", () => {
@@ -422,15 +595,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Сохранение новой анкеты
   const createProfileForm = document.getElementById("create-profile-form");
   if (createProfileForm) {
     createProfileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm(createProfileForm)) return;
+
+      // Отключаем кнопку, чтобы не создать дубль
+      const submitBtn = document.getElementById("save-create-btn");
+      submitBtn.disabled = true;
+
       const user = getCurrentUser();
       if (!user) {
         showToast("Сначала войдите в систему.");
+        submitBtn.disabled = false;
         return;
       }
       const formData = new FormData(createProfileForm);
@@ -445,15 +623,24 @@ document.addEventListener("DOMContentLoaded", () => {
               .filter((s) => s)
           : [],
         owner: user.email,
+        ownerId: user.id
       };
+
       const photoFile = formData.get("photo");
       if (photoFile && photoFile.size > 0) {
+        // проверка размера файла (2 МБ)
+        if (photoFile.size > 2 * 1024 * 1024) {
+          showToast("Максимальный размер фото — 2 МБ", "error");
+          submitBtn.disabled = false;
+          return;
+        }
         const reader = new FileReader();
         reader.onload = async (event) => {
           portfolioData.photo = event.target.result;
           const res = await createPortfolioAPI(portfolioData);
           if (res.error) {
             showToast(res.error, "error");
+            submitBtn.disabled = false;
           } else {
             showToast("Анкета создана!");
             closeModal("modal-create-profile");
@@ -466,6 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await createPortfolioAPI(portfolioData);
         if (res.error) {
           showToast(res.error, "error");
+          submitBtn.disabled = false;
         } else {
           showToast("Анкета создана!");
           closeModal("modal-create-profile");
@@ -475,7 +663,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Кнопка "Выход" (в профиле)
+  // ---------------------------------------------
+  // ВЫХОД
+  // ---------------------------------------------
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
@@ -486,7 +676,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Кнопка "Новости"
+  // ---------------------------------------------
+  // НОВОСТИ
+  // ---------------------------------------------
   const newsBtn = document.getElementById("news-btn");
   if (newsBtn) {
     newsBtn.addEventListener("click", () => {
@@ -494,7 +686,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Закрытие модалок (крестики)
+  // ---------------------------------------------
+  // ЗАКРЫТИЕ МОДАЛОК
+  // ---------------------------------------------
   document.querySelectorAll(".close").forEach((btn) => {
     btn.addEventListener("click", () => {
       const modalId = btn.getAttribute("data-modal");
@@ -502,7 +696,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Закрытие модалки по клику вне её
   window.addEventListener("click", (event) => {
     document.querySelectorAll(".modal").forEach((modal) => {
       if (event.target === modal) {
