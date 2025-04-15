@@ -628,9 +628,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const photoFile = formData.get("photo");
       if (photoFile && photoFile.size > 0) {
-        // проверка размера файла (2 МБ)
-        if (photoFile.size > 2 * 1024 * 1024) {
-          showToast("Максимальный размер фото — 2 МБ", "error");
+        // проверка размера файла (5 МБ)
+        if (photoFile.size > 5 * 1024 * 1024) {
+          showToast("Максимальный размер фото — 5 МБ", "error");
           submitBtn.disabled = false;
           return;
         }
