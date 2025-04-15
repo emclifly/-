@@ -157,7 +157,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Удаление анкеты
+  // *** Новый эндпоинт для добавления/убирания анкеты из избранного (на сервере)
+  // PUT /api/users/:userId/favorites  { portfolioId }
+  async function toggleFavoriteAPI(userId, portfolioId) {
+    try {
+      const res = await fetch(`${API_URL}/users/${userId}/favorites`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ portfolioId }),
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка избранного:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
   async function deletePortfolioAPI(id) {
     try {
       const res = await fetch(`${API_URL}/portfolios/${id}`, {
@@ -170,19 +185,93 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Обновить данные анкеты (например, favorite)
-  async function updatePortfolioAPI(id, updateData) {
-    try {
-      const res = await fetch(`${API_URL}/portfolios/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
-      });
-      return await res.json();
-    } catch (err) {
-      console.error("Ошибка обновления анкеты:", err);
-      return { error: "Ошибка связи с сервером" };
+  // ---------------------------------------------
+  // ФУНКЦИЯ: ПОЛУЧИТЬ ВСЕ АНКЕТЫ, ПРИМЕНИТЬ ФИЛЬТРЫ, ОТСОРТИРОВАТЬ, ОТОБРАЗИТЬ
+  // ---------------------------------------------
+  async function filterAndRenderPortfolios() {
+    const result = await getPortfoliosAPI();
+    if (result.error) {
+      showToast(result.error, "error");
+      return;
     }
+    let portfolios = result.portfolios || [];
+
+    const user = getCurrentUser();
+
+    // 1) Поиск (search input)
+    const query = searchInput.value.trim().toLowerCase();
+    if (query) {
+      portfolios = portfolios.filter((p) =>
+        p.fullname.toLowerCase().includes(query)
+      );
+    }
+
+    // 2) Фильтр по навыкам (чекбоксы)
+    const skills = Array.from(document.querySelectorAll('input[name="skill"]:checked'))
+      .map((checkbox) => checkbox.value);
+
+    if (skills.length > 0) {
+      portfolios = portfolios.filter((p) =>
+        // проверяем, что ВСЕ выбранные skill есть в p.skills
+        skills.every((skill) => p.skills.includes(skill))
+      );
+    }
+
+    // 3) «Только избранные»
+    const isFavoriteOnly = document.getElementById("filter-favorite").checked;
+    if (isFavoriteOnly && user) {
+      // Берём только те анкеты, чей ID есть в user.favorites
+      // (user.favorites может быть undefined)
+      const favs = user.favorites || [];
+      portfolios = portfolios.filter((p) => favs.includes(String(p.id)));
+    }
+
+    // 4) Дата (date-from / date-to)
+    const dateFromValue = document.getElementById("date-from").value;
+    const dateToValue = document.getElementById("date-to").value;
+
+    if (dateFromValue) {
+      const fromDate = new Date(dateFromValue);
+      portfolios = portfolios.filter((p) => new Date(p.createdAt) >= fromDate);
+    }
+    if (dateToValue) {
+      const toDate = new Date(dateToValue);
+      toDate.setHours(23, 59, 59, 999);
+      portfolios = portfolios.filter((p) => new Date(p.createdAt) <= toDate);
+    }
+
+    // 5) Сортировка (select)
+    const sortBy = document.getElementById("sort-select").value;
+    switch (sortBy) {
+      case "date_desc":
+        portfolios.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case "date_asc":
+        portfolios.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case "alpha_asc":
+        portfolios.sort((a, b) => a.fullname.localeCompare(b.fullname));
+        break;
+      case "alpha_desc":
+        portfolios.sort((a, b) => b.fullname.localeCompare(a.fullname));
+        break;
+    }
+
+    // 6) Всегда показываем «избранные» выше остальных
+    // (даже если не включен фильтр «только избранные»).
+    // Если пользователь не залогинен или нет favorites, пропустим
+    if (user && user.favorites) {
+      portfolios.sort((a, b) => {
+        const aFav = user.favorites.includes(String(a.id));
+        const bFav = user.favorites.includes(String(b.id));
+        if (aFav && !bFav) return -1;
+        if (!aFav && bFav) return 1;
+        return 0;
+      });
+    }
+
+    // Наконец, отрисовываем
+    renderPortfolios(portfolios);
   }
 
   // ---------------------------------------------
@@ -208,11 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <p class="creation-date">
           Создано: ${new Date(portfolio.createdAt).toLocaleString("ru-RU")}
         </p>
-        ${
-          portfolio.favorite
-            ? `<p style="color:tomato; font-weight:bold;">Избранное</p>`
-            : ""
-        }
       `;
 
       // Кнопка "Посмотреть профиль владельца" (если ownerId есть)
@@ -232,27 +316,32 @@ document.addEventListener("DOMContentLoaded", () => {
         portfolioCard.appendChild(viewProfileBtn);
       }
 
-      // Кнопка "В избранное / Убрать из избранного"
-      // Логика: только владелец анкеты может менять "избранное"
-      if (currentUser && currentUser.email === portfolio.owner) {
+      // Если залогинены и это **НЕ** наша анкета, можно «добавить в избранное»
+      if (currentUser && currentUser.id !== portfolio.ownerId) {
+        const userFavs = currentUser.favorites || [];
+        const isFav = userFavs.includes(String(portfolio.id));
+
         const favBtn = document.createElement("button");
         favBtn.className = "secondary";
-        favBtn.textContent = portfolio.favorite ? "Убрать из избранного" : "В избранное";
+        favBtn.textContent = isFav ? "Убрать из избранного" : "В избранное";
         favBtn.style.marginRight = "10px";
         favBtn.addEventListener("click", async () => {
-          const newFavorite = !portfolio.favorite;
-          const updateRes = await updatePortfolioAPI(portfolio.id, { favorite: newFavorite });
-          if (updateRes.error) {
-            showToast(updateRes.error, "error");
+          // Вызываем toggleFavoriteAPI
+          const toggleRes = await toggleFavoriteAPI(currentUser.id, String(portfolio.id));
+          if (toggleRes.error) {
+            showToast(toggleRes.error, "error");
           } else {
+            // toggleRes.user — обновлённый объект пользователя
+            setCurrentUser(toggleRes.user);
             showToast("Избранное изменено!");
-            loadPortfolios();
+            // Переприменяем фильтр, чтобы сразу увидеть изменения
+            filterAndRenderPortfolios();
           }
         });
         portfolioCard.appendChild(favBtn);
       }
 
-      // Кнопка "Удалить анкету" (только владелец)
+      // Если это наша анкета — кнопка "Удалить"
       if (currentUser && currentUser.email === portfolio.owner) {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "delete";
@@ -264,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
               showToast(result.error, "error");
             } else {
               showToast("Анкета удалена!");
-              loadPortfolios();
+              filterAndRenderPortfolios();
             }
           }
         });
@@ -301,107 +390,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------------------------------------------
-  // ЗАГРУЗКА АНКЕТ
-  // ---------------------------------------------
-  async function loadPortfolios() {
-    const result = await getPortfoliosAPI();
-    if (result.error) {
-      showToast(result.error, "error");
-    } else {
-      renderPortfolios(result.portfolios);
-    }
-  }
-  loadPortfolios();
-
-  // ---------------------------------------------
-  // ФИЛЬТР ПО ВВОДУ (ПОИСК ФИО)
+  // ПЕРЕМЕННЫЕ ДЛЯ ПОИСКА / ФИЛЬТРА
   // ---------------------------------------------
   const searchInput = document.getElementById("search-input");
-  searchInput.addEventListener("input", async () => {
-    const query = searchInput.value.trim().toLowerCase();
-    const result = await getPortfoliosAPI();
-    if (result.error) {
-      showToast(result.error, "error");
-      return;
-    }
-    const filteredPortfolios = result.portfolios.filter((portfolio) =>
-      portfolio.fullname.toLowerCase().includes(query)
-    );
-    renderPortfolios(filteredPortfolios);
-  });
-
-  // ---------------------------------------------
-  // ФИЛЬТРЫ (НАВЫКИ, ИЗБРАННОЕ, ДАТА, СОРТ)
-  // ---------------------------------------------
-  const filterToggle = document.getElementById("filter-toggle");
-  const filterOptions = document.getElementById("filter-options");
-  filterToggle.addEventListener("click", () => {
-    filterOptions.style.display =
-      filterOptions.style.display === "none" ? "block" : "none";
-  });
-
   const applyFilterBtn = document.getElementById("apply-filter-btn");
-  applyFilterBtn.addEventListener("click", async () => {
-    const skills = Array.from(
-      document.querySelectorAll('input[name="skill"]:checked')
-    ).map((checkbox) => checkbox.value);
 
-    const isFavoriteOnly = document.getElementById("filter-favorite").checked;
-    const dateFrom = document.getElementById("date-from").value;
-    const dateTo = document.getElementById("date-to").value;
-    const sortBy = document.getElementById("sort-select").value;
+  // ---------------------------------------------
+  // ПРИ ЗАГРУЗКЕ - СРАЗУ ПРИМЕНИМ ФИЛЬТРЫ
+  // ---------------------------------------------
+  filterAndRenderPortfolios();
 
-    const result = await getPortfoliosAPI();
-    if (result.error) {
-      showToast(result.error, "error");
-      return;
-    }
-    let filteredPortfolios = result.portfolios;
+  // При изменении поля поиска - фильтруем
+  searchInput.addEventListener("input", () => {
+    filterAndRenderPortfolios();
+  });
 
-    // Фильтр по навыкам
-    if (skills.length > 0) {
-      filteredPortfolios = filteredPortfolios.filter((portfolio) =>
-        skills.every((skill) => portfolio.skills.includes(skill))
-      );
-    }
-
-    // Только избранные
-    if (isFavoriteOnly) {
-      filteredPortfolios = filteredPortfolios.filter((p) => p.favorite);
-    }
-
-    // Фильтр по дате
-    if (dateFrom) {
-      const fromDate = new Date(dateFrom);
-      filteredPortfolios = filteredPortfolios.filter(
-        (p) => new Date(p.createdAt) >= fromDate
-      );
-    }
-    if (dateTo) {
-      const toDate = new Date(dateTo);
-      toDate.setHours(23, 59, 59, 999);
-      filteredPortfolios = filteredPortfolios.filter(
-        (p) => new Date(p.createdAt) <= toDate
-      );
-    }
-
-    // Сортировка
-    switch (sortBy) {
-      case "date_desc":
-        filteredPortfolios.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-      case "date_asc":
-        filteredPortfolios.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        break;
-      case "alpha_asc":
-        filteredPortfolios.sort((a, b) => a.fullname.localeCompare(b.fullname));
-        break;
-      case "alpha_desc":
-        filteredPortfolios.sort((a, b) => b.fullname.localeCompare(a.fullname));
-        break;
-    }
-
-    renderPortfolios(filteredPortfolios);
+  // При нажатии «Применить фильтр» - фильтруем
+  applyFilterBtn.addEventListener("click", () => {
+    filterAndRenderPortfolios();
   });
 
   // ---------------------------------------------
@@ -413,7 +419,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!validateForm(regForm)) return;
 
-      // Чтобы предотвратить дубли, отключим кнопку
       const submitBtn = regForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
 
@@ -443,7 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!validateForm(loginForm)) return;
 
-      // Отключаем кнопку, чтобы исключить двойное нажатие
       const submitBtn = loginForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
 
@@ -459,6 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Вход успешен!");
         closeModal("modal-login");
         updateCurrentUserName();
+        filterAndRenderPortfolios(); // Обновим список, вдруг нужно показать избранные
       }
     });
   }
@@ -507,7 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
       editForm.location.value = user.location || "";
       editForm.experience.value = user.experience || "";
       editForm.education.value = user.education || "";
-      editForm.phone.value = user.phone || ""; // Добавлено новое поле
+      editForm.phone.value = user.phone || "";
       openModal("modal-edit-profile");
     });
   }
@@ -518,7 +523,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!validateForm(editProfileForm)) return;
 
-      // Отключаем кнопку
       const submitBtn = editProfileForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
 
@@ -540,7 +544,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const photoFile = formData.get("photo");
       if (photoFile && photoFile.size > 0) {
-        // проверка размера файла (2 МБ)
         if (photoFile.size > 2 * 1024 * 1024) {
           showToast("Максимальный размер фото — 2 МБ", "error");
           submitBtn.disabled = false;
@@ -558,6 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Профиль обновлён!");
             closeModal("modal-edit-profile");
             updateCurrentUserName();
+            filterAndRenderPortfolios(); // вдруг надо что-то пересчитать
           }
         };
         reader.readAsDataURL(photoFile);
@@ -572,6 +576,7 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("Профиль обновлён!");
           closeModal("modal-edit-profile");
           updateCurrentUserName();
+          filterAndRenderPortfolios();
         }
       }
     });
@@ -601,7 +606,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!validateForm(createProfileForm)) return;
 
-      // Отключаем кнопку, чтобы не создать дубль
       const submitBtn = document.getElementById("save-create-btn");
       submitBtn.disabled = true;
 
@@ -628,9 +632,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const photoFile = formData.get("photo");
       if (photoFile && photoFile.size > 0) {
-        // проверка размера файла (5 МБ)
-        if (photoFile.size > 5 * 1024 * 1024) {
-          showToast("Максимальный размер фото — 5 МБ", "error");
+        if (photoFile.size > 2 * 1024 * 1024) {
+          showToast("Максимальный размер фото — 2 МБ", "error");
           submitBtn.disabled = false;
           return;
         }
@@ -644,7 +647,8 @@ document.addEventListener("DOMContentLoaded", () => {
           } else {
             showToast("Анкета создана!");
             closeModal("modal-create-profile");
-            loadPortfolios();
+            // После создания заново фильтруем
+            filterAndRenderPortfolios();
           }
         };
         reader.readAsDataURL(photoFile);
@@ -657,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           showToast("Анкета создана!");
           closeModal("modal-create-profile");
-          loadPortfolios();
+          filterAndRenderPortfolios();
         }
       }
     });
@@ -673,6 +677,8 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Вы вышли из системы.");
       updateCurrentUserName();
       closeModal("modal-profile");
+      // При выходе тоже обновим отображение
+      filterAndRenderPortfolios();
     });
   }
 
@@ -704,4 +710,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
