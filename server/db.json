@@ -23,28 +23,4 @@
       "password": "$2b$10$wUxaxjYPOfR6Xc3asNYtc.FZYQRCX/Qczh8MnedqQZJBNldFSxHOO"
     }
   ],
-  "portfolios": [
-    {
-      "id": 1744548304612,
-      "fullname": "123",
-      "description": "321",
-      "skills": [
-        "132"
-      ],
-      "owner": "123@mail.com",
-      "createdAt": "2025-04-13T12:45:04.612Z",
-      "favorite": false
-    },
-    {
-      "id": 1744558869924,
-      "fullname": "1",
-      "description": "1",
-      "skills": [
-        "1"
-      ],
-      "owner": "1@a.c",
-      "createdAt": "2025-04-13T15:41:09.924Z",
-      "favorite": false
-    }
-  ]
 }
