@@ -35,7 +35,7 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: 'onlineportfolio42@gmail.com',   // <-- здесь ваш gmail
     pass: 'Gupioshio_32',      // <-- app password (не обычный пароль)
-}});
+});
 
 // Генерация 6-значного кода подтверждения
 function generateVerificationCode() {
