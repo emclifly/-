@@ -58,26 +58,38 @@ app.use(express.static(path.join(__dirname, '..')));
 app.post('/api/register', async (req, res) => {
   await ensureDB();
   const { name, email, password } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ error: 'Заполните все поля' });
+  if (!name || !email || !password)
+    return res.status(400).json({ error: 'Заполните все поля' });
 
   if (db.data.users.find(u => u.email === email))
     return res.status(409).json({ error: 'Email уже зарегистрирован' });
 
-  const hashed        = await bcrypt.hash(password, 10);
-  const code          = genCode();
-  const expires       = Date.now() + 15*60*1000;          // 15 минут
+  const hashed = await bcrypt.hash(password, 10);
+  const code   = genCode();
+  const expires = Date.now() + 15 * 60 * 1000; // 15 минут
+
+  // Сначала пытаемся отправить код на почту
+  try {
+    await mailCode(email, code);
+  } catch {
+    return res.status(500).json({ error: 'Не удалось отправить письмо' });
+  }
+
+  // После успешной отправки сохраняем пользователя
   const draftUser = {
-    id: Date.now(), name: cleanText(name), email,
-    password: hashed, verified: false,
-    verificationCode: code, verificationExpires: expires,
-    favorites: []
+    id: Date.now(),
+    name: cleanText(name),
+    email,
+    password: hashed,
+    verified: false,
+    verificationCode: code,
+    verificationExpires: expires,
+    favorites: [],
   };
-  db.data.users.push(draftUser); await db.write();
+  db.data.users.push(draftUser);
+  await db.write();
 
-  try { await mailCode(email, code); }
-  catch { return res.status(500).json({ error: 'Не удалось отправить письмо' }); }
-
-  res.json({ message: 'Код отправлен на почту' });
+  res.status(200).json({ message: 'Код отправлен на почту' });
 });
 
 // ---------------------------------------------------------------------------
@@ -227,3 +239,4 @@ app.put('/api/users/:id/favorites', async (req,res)=>{
 
 // ---------------------------------------------------------------------------
 app.listen(PORT,()=>console.log(`🟢  Server: http://localhost:${PORT}`));
+
