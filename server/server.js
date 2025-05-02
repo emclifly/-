@@ -30,8 +30,10 @@ async function ensureDB() {
 // --- E-mail (Gmail app-password) --------------------------------------------
 const transporter = nodemailer.createTransport({
   service: 'gmail',
-  auth: { user: 'onlineportfolio42@gmail.com', pass: 'bwmllfriorjxujiy' }
-});
+  auth: {
+    user: 'onlineportfolio42@gmail.com',
+    pass: 'bwml lfri orjx ujiy'
+  },
 
 function genCode() { return Math.floor(100000 + Math.random()*900000).toString(); }
 async function mailCode(to, code) {
