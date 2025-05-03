@@ -109,21 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
-  // Повторная отправка кода (Шаг 3)
-  async function resendCodeAPI(email) {
-    try {
-      const res = await fetch(`${API_URL}/resend-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      return await res.json();
-    } catch (err) {
-      console.error('Ошибка повторной отправки кода:', err);
-      return { error: 'Ошибка связи с сервером' };
-    }
-  }
   async function loginUserAPI(email, password) {
     try {
       const res = await fetch(`${API_URL}/login`, {
@@ -361,35 +346,6 @@ document.addEventListener("DOMContentLoaded", () => {
         portfolioCard.appendChild(favBtn);
       }
 
-
-      // Кнопка "Просмотреть профиль"
-      const viewBtn = document.createElement('button');
-      viewBtn.className = 'view';
-      viewBtn.textContent = 'Просмотреть профиль';
-      viewBtn.addEventListener('click', async () => {
-        const res = await fetch(`${API_URL}/profile/${portfolio.ownerId}`);
-        const data = await res.json();
-        if (data.error) {
-          showToast(data.error, 'error');
-        } else {
-          const user = data.user;
-          const modal = document.getElementById('modal-view-user');
-          modal.querySelector('.modal-content-inner').innerHTML = `
-            <h2>Профиль пользователя</h2>
-            <div class="photo-container">
-              ${user.photo ? `<img src="${user.photo}" alt="Фото"/>` : ''} 
-            </div>
-            <p><strong>Имя:</strong> ${user.name || ''}</p>
-            <p><strong>Возраст:</strong> ${user.age || ''}</p>
-            <p><strong>Место:</strong> ${user.location || ''}</p>
-            <p><strong>Стаж:</strong> ${user.experience || ''}</p>
-            <p><strong>Образование:</strong> ${user.education || ''}</p>
-            <p><strong>Телефон:</strong> ${user.phone || ''}</p>
-          `;
-          openModal('modal-view-user');
-        }
-      });
-      portfolioCard.appendChild(viewBtn);
       // Кнопка "Удалить" (только если это моя анкета)
       if (currentUser && currentUser.email === portfolio.owner) {
         const deleteBtn = document.createElement("button");
@@ -552,17 +508,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------------------------------------------
-
-  // Повторная отправка кода — кнопка
-  const resendBtn = document.getElementById('resend-code-btn');
-  if (resendBtn) {
-    resendBtn.addEventListener('click', async () => {
-      const email = document.querySelector('#verify-form input[name="email"]').value;
-      const result = await resendCodeAPI(email);
-      if (result.error) showToast(result.error, 'error');
-      else showToast('Новый код отправлен на почту');
-    });
-  }
   // ПРОСМОТР СОБСТВЕННОГО ПРОФИЛЯ
   // ---------------------------------------------
   const profileBtn = document.getElementById("profile-btn");
