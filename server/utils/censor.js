@@ -1,4 +1,4 @@
-import Filter from 'bad-words';
+const Filter = require('bad-words');
 
 const filter = new Filter();
 
