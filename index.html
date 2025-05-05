@@ -12,66 +12,73 @@
   </head>
   <body>
     <!-- Верхняя панель -->
-    <header class="top-bar">
+    <header class="top-bar" role="banner">
       <div class="logo">
         <h1>Онлайн Портфолио</h1>
       </div>
-      <div class="top-buttons">
-        <span id="current-user"></span>
+      <nav class="top-buttons" role="navigation">
+        <span id="current-user" aria-live="polite"></span>
         <div id="auth-buttons">
-          <button id="reg-btn" class="primary">Регистрация</button>
-          <button id="login-btn" class="primary">Вход</button>
+          <button id="reg-btn" class="primary" aria-label="Регистрация">Регистрация</button>
+          <button id="login-btn" class="primary" aria-label="Вход">Вход</button>
         </div>
-        <button id="profile-btn" class="primary" style="display:none;">Профиль</button>
-        <button id="news-btn" class="primary">Новости</button>
-      </div>
+        <button id="create-profile-btn" class="primary" style="display:none;" aria-label="Создать анкету">Создать анкету</button>
+      </nav>
     </header>
 
     <!-- Информационный блок -->
-    <section class="site-info">
+    <section class="site-info" role="region" aria-label="Информация о сайте">
       <h2>Добро пожаловать на онлайн-портфолио программиста!</h2>
       <p>
         Этот портал создан для демонстрации профессиональных навыков, опыта
-        работы и проектов. Создавайте анкеты, редактируйте профиль и делитесь
-        достижениями!
+        работы и проектов. Создавайте анкеты и делитесь своими достижениями!
       </p>
     </section>
 
     <!-- Поисковая секция -->
-    <section class="search-section">
+    <section class="search-section" role="search">
       <div class="search-bar">
-        <input type="text" id="search-input" placeholder="Поиск анкет (ФИО)" />
-        <button id="filter-toggle" class="primary">Фильтр</button>
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Поиск анкет (ФИО)"
+          aria-label="Поиск анкет по ФИО"
+        />
+        <button 
+          id="filter-toggle" 
+          class="primary"
+          aria-expanded="false"
+          aria-controls="filter-options"
+        >
+          Фильтр
+        </button>
       </div>
       <!-- Расширенные опции фильтра -->
-      <div id="filter-options" style="display:none;">
+      <div id="filter-options" style="display:none;" role="region" aria-label="Опции фильтра">
         <div class="filter-group">
           <p><strong>Фильтр по навыкам:</strong></p>
-          <label><input type="checkbox" name="skill" value="html" /> HTML</label>
-          <label><input type="checkbox" name="skill" value="css" /> CSS</label>
-          <label><input type="checkbox" name="skill" value="javascript" /> JavaScript</label>
-          <label><input type="checkbox" name="skill" value="python" /> Python</label>
-          <label><input type="checkbox" name="skill" value="react" /> React</label>
-          <label><input type="checkbox" name="skill" value="node" /> Node</label>
-          <label><input type="checkbox" name="skill" value="vue" /> Vue</label>
-        </div>
-        <div class="filter-group">
-          <p><strong>Дополнительные критерии:</strong></p>
-          <label>
-            <input type="checkbox" id="filter-favorite" />
-            Только избранные
-          </label>
+          <div role="group" aria-label="Выбор навыков">
+            <label><input type="checkbox" name="skill" value="html" /> HTML</label>
+            <label><input type="checkbox" name="skill" value="css" /> CSS</label>
+            <label><input type="checkbox" name="skill" value="javascript" /> JavaScript</label>
+            <label><input type="checkbox" name="skill" value="python" /> Python</label>
+            <label><input type="checkbox" name="skill" value="react" /> React</label>
+            <label><input type="checkbox" name="skill" value="node" /> Node</label>
+            <label><input type="checkbox" name="skill" value="vue" /> Vue</label>
+          </div>
         </div>
         <div class="filter-group">
           <p><strong>Диапазон дат создания:</strong></p>
-          <label for="date-from">От:</label>
-          <input type="date" id="date-from" />
-          <label for="date-to">До:</label>
-          <input type="date" id="date-to" />
+          <div role="group" aria-label="Выбор дат">
+            <label for="date-from">От:</label>
+            <input type="date" id="date-from" aria-label="Дата от" />
+            <label for="date-to">До:</label>
+            <input type="date" id="date-to" aria-label="Дата до" />
+          </div>
         </div>
         <div class="filter-group">
           <label for="sort-select">Сортировать по:</label>
-          <select id="sort-select">
+          <select id="sort-select" aria-label="Выбор сортировки">
             <option value="date_desc" selected>Сначала новые</option>
             <option value="date_asc">Сначала старые</option>
             <option value="alpha_asc">От А до Я</option>
@@ -84,74 +91,16 @@
 
     <!-- Секция анкет -->
     <main>
-      <section class="portfolios">
+      <section class="portfolios" role="region" aria-label="Анкеты пользователей">
         <h2>Анкеты пользователей</h2>
-        <div id="portfolio-list" class="portfolio-list"></div>
-        <button id="create-profile-btn" class="create-button">Создать анкету</button>
+        <div id="portfolio-list" class="portfolio-list" role="list"></div>
       </section>
     </main>
 
     <!-- Контейнер уведомлений -->
-    <div id="toast-container"></div>
+    <div id="toast-container" role="alert" aria-live="polite"></div>
 
     <!-- Модальные окна -->
-
-    <!-- Модальное окно профиля -->
-    <div id="modal-profile" class="modal">
-      <div class="modal-content">
-        <span class="close" data-modal="modal-profile">×</span>
-        <h2>Ваш профиль</h2>
-        <div id="profile-info"></div>
-        <button id="edit-profile-btn" class="secondary">Редактировать профиль</button>
-        <button id="logout-btn" class="secondary">Выйти</button>
-      </div>
-    </div>
-
-    <!-- Модальное окно редактирования профиля -->
-    <div id="modal-edit-profile" class="modal">
-      <div class="modal-content">
-        <span class="close" data-modal="modal-edit-profile">×</span>
-        <h2>Редактирование профиля</h2>
-        <form id="edit-profile-form">
-          <label>
-            Имя:
-            <input type="text" name="name" required />
-            <span class="error-message"></span>
-          </label>
-          <label>
-            Возраст:
-            <input type="number" name="age" required />
-            <span class="error-message"></span>
-          </label>
-          <label>
-            Место проживания:
-            <input type="text" name="location" required />
-            <span class="error-message"></span>
-          </label>
-          <label>
-            Стаж работы:
-            <input type="text" name="experience" required />
-            <span class="error-message"></span>
-          </label>
-          <label>
-            Образование:
-            <input type="text" name="education" required />
-            <span class="error-message"></span>
-          </label>
-          <label>
-            Телефон:
-            <input type="tel" name="phone" maxlength="20"/>
-            <span class="error-message"></span>
-          </label>
-          <label>
-            Фотография:
-            <input type="file" name="photo" accept="image/*" />
-            <span class="error-message"></span>
-          </label>
-          <button type="submit" class="primary">Сохранить изменения</button>
-        </form>
-      </div>
-    </div>
 
     <!-- Модальное окно регистрации -->
     <div id="modal-registration" class="modal">
@@ -161,17 +110,17 @@
         <form id="registration-form">
           <label>
             Имя:
-            <input type="text" name="name" required />
+            <input type="text" name="name" required minlength="2" maxlength="50" />
             <span class="error-message"></span>
           </label>
           <label>
             Email:
-            <input type="email" name="email" required />
+            <input type="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
             <span class="error-message"></span>
           </label>
           <label>
             Пароль:
-            <input type="password" name="password" required />
+            <input type="password" name="password" required minlength="6" />
             <span class="error-message"></span>
           </label>
           <button type="submit" class="primary">Зарегистрироваться</button>
@@ -187,12 +136,12 @@
         <form id="verify-form">
           <label>
             Email:
-            <input type="email" name="email" required />
+            <input type="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
             <span class="error-message"></span>
           </label>
           <label>
             Код подтверждения:
-            <input type="text" name="code" required />
+            <input type="text" name="code" required pattern="[0-9]{6}" maxlength="6" />
             <span class="error-message"></span>
           </label>
           <button type="submit" class="primary">Подтвердить</button>
@@ -208,25 +157,16 @@
         <form id="login-form">
           <label>
             Email:
-            <input type="email" name="email" required />
+            <input type="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
             <span class="error-message"></span>
           </label>
           <label>
             Пароль:
-            <input type="password" name="password" required />
+            <input type="password" name="password" required minlength="6" />
             <span class="error-message"></span>
           </label>
           <button type="submit" class="primary">Войти</button>
         </form>
-      </div>
-    </div>
-
-    <!-- Модальное окно новостей -->
-    <div id="modal-news" class="modal">
-      <div class="modal-content">
-        <span class="close" data-modal="modal-news">×</span>
-        <h2>Новости портала</h2>
-        <p>Здесь отображаются последние новости и обновления.</p>
       </div>
     </div>
 
@@ -238,56 +178,29 @@
         <form id="create-profile-form">
           <label>
             ФИО:
-            <input type="text" name="fullname" required maxlength="100" />
+            <input type="text" name="fullname" required minlength="2" maxlength="100" />
             <span class="error-message"></span>
           </label>
           <label>
             Описание:
-            <textarea name="description" required maxlength="1000"></textarea>
+            <textarea name="description" required minlength="10" maxlength="1000"></textarea>
             <span class="error-message"></span>
           </label>
           <label>
             Навыки (через запятую, напр. html, css, javascript):
-            <input type="text" name="skills" />
+            <input type="text" name="skills" required pattern="[a-zA-Zа-яА-Я0-9\s,]+" />
+            <span class="error-message"></span>
           </label>
           <label>
             Фотография:
-            <input type="file" name="photo" accept="image/*"/>
+            <input type="file" name="photo" accept="image/*" />
             <span class="error-message"></span>
           </label>
-          <button type="submit" id="save-create-btn" class="create-button">
-            Создать
-          </button>
+          <button type="submit" class="primary">Создать анкету</button>
         </form>
       </div>
     </div>
 
-    <!-- Модальное окно просмотра чужого профиля -->
-    <div id="modal-view-user" class="modal">
-      <div class="modal-content">
-        <span class="close" data-modal="modal-view-user">×</span>
-        <div class="modal-content-inner"></div>
-      </div>
-    </div>
-
-    <!-- Подключение скриптов -->
-    <script>
-      // Открытие регистрационного модального окна
-      document.getElementById("reg-btn").addEventListener("click", () => {
-        document.getElementById("registration-form").reset();
-        const modal = document.getElementById("modal-registration");
-        modal.classList.add("show");
-        modal.style.display = "block";
-      });
-
-      // Открытие окна входа
-      document.getElementById("login-btn").addEventListener("click", () => {
-        document.getElementById("login-form").reset();
-        const modal = document.getElementById("modal-login");
-        modal.classList.add("show");
-        modal.style.display = "block";
-      });
-    </script>
     <script src="script.js"></script>
   </body>
 </html>
