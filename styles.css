@@ -1,0 +1,937 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #FFF;
+  color: #000;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+
+/* Верхняя панель */
+.top-bar {
+  background: #D9D9D9 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  width: 100% !important;
+  max-width: 1920px !important;
+  margin: 0 !important;
+  height: 92px !important;
+  flex-shrink: 0 !important;
+  border-radius: 0 !important;
+}
+
+.top-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.top-buttons span#current-user {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+/* Стандартные кнопки */
+button {
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.3s ease;
+  padding: 12px 20px;
+  border-radius: 4px;
+}
+
+.top-buttons button {
+  padding: 10px 16px;
+  font-size: 0.95em;
+}
+
+/* Основные (primary) */
+button.primary {
+  background: linear-gradient(145deg, #2980b9, #1c5980);
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+button.primary:hover {
+  background: linear-gradient(145deg, #1c5980, #2980b9);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+/* Второстепенные (secondary) */
+button.secondary {
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+button.secondary:hover {
+  background: linear-gradient(145deg, #c0392b, #e74c3c);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+/* Кнопка удаления (пример) */
+button.delete {
+  background: linear-gradient(145deg, #d35400, #a04000);
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+button.delete:hover {
+  background: linear-gradient(145deg, #a04000, #d35400);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+/* Кнопка для создания анкеты */
+.create-button {
+  background: linear-gradient(145deg, #27ae60, #1e8449);
+  color: #fff;
+  font-size: 1.1em;
+  padding: 14px 28px;
+  margin: 30px auto;
+  display: block;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  border-radius: 6px;
+}
+
+.create-button:hover {
+  background: linear-gradient(145deg, #1e8449, #27ae60);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+}
+
+/* Поисковая секция */
+.search-section {
+  padding: 0 !important;
+  background-color: #fff;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 1888px !important;
+  max-width: 1888px;
+  margin: 20px auto;
+  height: 98px !important;
+  flex-shrink: 0 !important;
+  background: #D9D9D9 !important;
+  margin-left: 16px !important;
+  border-radius: 0 !important;
+  margin-top: 32px !important;
+  margin-bottom: 32px !important;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin: 24px 106px 24px 32px !important;
+}
+
+.search-bar input[type="text"] {
+  flex-grow: 1;
+  padding: 13px 0 13px 32px !important;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  font-size: 1em;
+  width: 1750px !important;
+  height: 50px !important;
+  flex-shrink: 0 !important;
+  border-radius: 85px !important;
+  background: #747474 !important;
+}
+
+.search-bar button {
+  /* background handled via #filter-toggle ID */
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#filter-options {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #ccc;
+}
+
+#filter-options, #filter-options * {
+  color: #000;
+  font-family: "Montserrat Alternates";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.filter-group {
+  margin-bottom: 15px;
+}
+.filter-group p {
+  margin: 0 0 5px;
+  font-weight: 600;
+}
+
+/* Анкеты пользователей */
+.portfolios {
+  padding: 30px 20px;
+  margin: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 1888px !important;
+  max-width: 1888px;
+  margin: 20px auto;
+  height: 1255px !important;
+  flex-shrink: 0 !important;
+  background: #D9D9D9 !important;
+  margin-left: 16px !important;
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+}
+
+.portfolios h2 {
+  margin-top: 31px !important;
+  margin-left: 104px !important;
+  font-weight: 400 !important;
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  line-height: normal !important;
+}
+
+.portfolio-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.portfolio-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  width: 100%;
+  max-width: 904px;
+}
+
+.portfolio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.portfolio-card h3 {
+  margin: 0 0 10px 0;
+  font-weight: 500;
+  font-size: 1.3em;
+}
+
+.portfolio-card .creation-date {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 10px;
+}
+
+/* Figma portfolio card overrides */
+.portfolio-card {
+  width: 904px;
+  height: 354px;
+  flex-shrink: 0;
+  border-radius: 40px;
+  background: #747474;
+  border: none;
+  padding: 0;
+}
+
+.portfolio-card h3 {
+  color: #000;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.portfolio-card .portfolio-description {
+  color: #000;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.portfolio-card button.secondary,
+.portfolio-card button.delete {
+  width: 100%;
+  max-width: 275px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 85px;
+  background: rgba(0, 0, 0, 0.68);
+  color: #FFF;
+  box-shadow: none;
+  border: none;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Модальные окна */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal.show {
+  display: block;
+  opacity: 1;
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 8% auto;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 1.8em;
+  color: #000;
+}
+
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.modal-content form label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 1em;
+}
+
+.modal-content form input,
+.modal-content form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+/* Ошибки валидации */
+.error-message {
+  color: #e74c3c;
+  font-size: 0.8em;
+  margin-top: 2px;
+}
+
+/* Превью изображений и фото */
+.photo-preview img,
+.photo-container img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Круглый контейнер для фото профиля */
+.photo-container {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+  border: 1px solid #ccc;
+}
+
+/* Тосты (уведомления) */
+#toast-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 2000;
+}
+
+.toast {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 4px;
+  animation: fadeInOut 4s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* ---------------------------------- */
+/*   БЛОК АДАПТИВНОСТИ (медиазапросы) */
+/* ---------------------------------- */
+
+/* --- Планшеты (ширина до ~768px) --- */
+@media (max-width: 768px) {
+  .top-bar .logo h1 {
+    font-size: 1.4em;
+  }
+  .site-info {
+    margin: 15px;
+    padding: 20px;
+  }
+  .search-section, .portfolios {
+    margin: 15px;
+    padding: 20px;
+  }
+}
+
+/* --- Смартфоны (ширина до ~480px) --- */
+@media (max-width: 480px) {
+  .top-bar {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px;
+  }
+  .top-bar .logo h1 {
+    margin-bottom: 10px;
+  }
+  .top-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .search-bar {
+    flex-direction: column;
+  }
+  .search-bar input[type="text"] {
+    border-radius: 4px;
+    border-right: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+  .search-bar button {
+    border-radius: 4px;
+  }
+  .portfolio-list {
+    grid-template-columns: 1fr;
+  }
+  .create-button {
+    width: 100%;
+    margin: 20px 0 0 0;
+  }
+}
+
+/* Custom layout overrides */
+.footer {
+  width: 100% !important;
+  max-width: 1920px !important;
+  margin: 0 !important;
+  height: 190px !important;
+  flex-shrink: 0 !important;
+  background: #D9D9D9 !important;
+  border-radius: 0 !important;
+  margin-top: auto !important;
+}
+
+/* Style filter toggle button */
+#filter-toggle {
+  width: 50px !important;
+  height: 50px !important;
+  flex-shrink: 0;
+  border-radius: 85px;
+  background: #747474 !important;
+  margin-left: 24px !important;
+}
+
+/* Style search input text */
+#search-input {
+  color: #000;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+#search-input::placeholder {
+  color: #000;
+}
+
+/* Header button text styling */
+#auth-buttons button,
+#news-btn {
+  /* Reset default button look */
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer;
+  color: #000;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+#news-btn {
+  position: absolute;
+  top: 34px;
+  left: 1700px;
+  width: auto;
+  height: 24px;
+}
+
+#reg-btn {
+  position: absolute;
+  top: 34px;
+  left: 1271px;
+  width: auto;
+  height: 24px;
+}
+
+#login-btn {
+  position: absolute;
+  top: 34px;
+  left: 1568px;
+  width: auto;
+  height: 24px;
+}
+
+/* Header title styling */
+.top-bar .logo h1 {
+  margin-left: 120px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+/* Site-info welcome text styling */
+.site-info {
+  width: 1888px !important;
+  height: 404px !important;
+  flex-shrink: 0 !important;
+  background: #D9D9D9 !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+}
+
+.site-info h2 {
+  text-align: left !important;
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+/* Footer question styling */
+.footer .footer-question {
+  margin-top: 32px;
+  margin-left: 120px;
+  margin-bottom: 32px !important;
+  color: #000;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+/* Footer social buttons styling */
+.footer .footer-buttons {
+  display: flex;
+  gap: 32px;
+  margin-left: 120px;
+  margin-bottom: 32px !important;
+}
+
+.footer .footer-buttons .social-btn {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 85px;
+  background: #747474;
+}
+
+/* Site-info welcome text styling */
+.site-info {
+  margin-left: 0 !important;
+  padding: 80px 378px 104px 104px !important;
+  text-align: left !important;
+}
+
+.site-info-text {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  width: 1406px !important;
+  height: 220px !important;
+}
+
+/* Ensure 16px left/right indent and square corners for Figma rectangles */
+.top-bar,
+.site-info,
+.search-section,
+.portfolios,
+.footer {
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+  border-radius: 0 !important;
+}
+
+/* Fix widths and margins for accurate 16px left/right spacing */
+.top-bar,
+.footer {
+  width: 100% !important;
+  max-width: 1920px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.site-info,
+.search-section,
+.portfolios {
+  width: calc(100% - 32px) !important;
+  max-width: 1888px !important;
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+  border-radius: 0 !important;
+}
+
+/* Sticky footer adjustments */
+main {
+  flex: 1 !important;
+}
+
+/* Registration modal styling */
+#modal-registration .modal-content {
+  width: 500px !important;
+  height: 678px !important;
+  border-radius: 51px !important;
+  background: #FFF !important;
+  padding-top: 40px !important;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+}
+
+#modal-registration .modal-content h2 {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+#modal-registration .modal-content form label {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 20px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  margin-bottom: 24px !important;
+}
+
+#modal-registration .modal-content button[type="submit"] {
+  display: block !important;
+  margin: 40px auto 40px !important;
+  width: 275px !important;
+  height: 50px !important;
+  flex-shrink: 0 !important;
+  border-radius: 85px !important;
+  background: #464646 !important;
+  color: #fff !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 16px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+/* Registration modal input fields styling */
+#modal-registration .modal-content form input {
+  width: 420px !important;
+  height: 50px !important;
+  flex-shrink: 0 !important;
+  border-radius: 85px !important;
+  border: 1px solid #000 !important;
+  margin-top: 16px !important;
+}
+
+/* Login modal styling */
+#modal-login .modal-content {
+  width: 500px !important;
+  height: 450px !important;
+  border-radius: 51px !important;
+  background: #FFF !important;
+  padding-top: 40px !important;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+}
+
+#modal-login .modal-content h2 {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+#modal-login .modal-content form label {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 20px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  margin-bottom: 24px !important;
+}
+
+#modal-login .modal-content form input {
+  width: 420px !important;
+  height: 50px !important;
+  flex-shrink: 0 !important;
+  border-radius: 85px !important;
+  border: 1px solid #000 !important;
+  margin-top: 16px !important;
+}
+
+#modal-login .modal-content button[type="submit"] {
+  display: block !important;
+  margin: 40px auto 40px !important;
+  width: 275px !important;
+  height: 50px !important;
+  flex-shrink: 0 !important;
+  border-radius: 85px !important;
+  background: #464646 !important;
+  color: #fff !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 16px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+/* News modal styling */
+#modal-news .modal-content {
+  width: 500px !important;
+  height: 204px !important;
+  border-radius: 51px !important;
+  background: #FFF !important;
+}
+
+#modal-news .modal-content h2 {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 36px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  margin-top: 0 !important;
+  margin-bottom: 32px !important;
+}
+
+#modal-news .modal-content p {
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 20px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+}
+
+/* Expanded search-section for filter options */
+.search-section.expanded {
+  width: 1888px !important;
+  height: 556px !important;
+  flex-shrink: 0 !important;
+}
+
+.search-section.expanded #filter-options {
+  display: flex !important;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 32px 64px !important;
+  padding-top: 16px !important;
+}
+
+.search-section.expanded #filter-options .filter-group {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 24px !important;
+  margin: 0 !important;
+  padding-left: 64px !important;
+}
+
+.search-section.expanded #filter-options .filter-group p {
+  flex-basis: 100% !important;
+  padding-left: 0 !important;
+  margin: 0 0 8px 0 !important;
+}
+
+.search-section.expanded #filter-options .filter-group label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+
+.search-section.expanded #filter-options input[type="checkbox"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 24px !important;
+  height: 24px !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1/1 !important;
+  border-radius: 3px !important;
+  background: #747474 !important;
+  cursor: pointer !important;
+}
+
+.search-section.expanded #filter-options label {
+  display: flex !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+  margin-left: 64px !important;
+}
+
+.search-section.expanded #filter-options #apply-filter-btn {
+  width: 243px !important;
+  height: 50px !important;
+  flex-shrink: 0 !important;
+  color: #FFF !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 16px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  border-radius: 85px !important;
+  background: rgba(0, 0, 0, 0.68) !important;
+  margin-left: 54px !important;
+  margin-bottom: 32px !important;
+}
+
+.search-section.expanded #filter-options .filter-group:not(:first-child) {
+  flex-basis: 100% !important;
+}
+
+.search-section.expanded #filter-options p strong {
+  font-weight: 400 !important;
+}
+
+.search-section.expanded #filter-options input[type="date"] {
+  width: 114px !important;
+  height: 24px !important;
+  flex-shrink: 0 !important;
+  border-radius: 3px !important;
+  background: #9E9E9E !important;
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  border: none !important;
+  padding: 0 4px !important;
+}
+
+.search-section.expanded #filter-options select#sort-select {
+  width: 152px !important;
+  height: 24px !important;
+  flex-shrink: 0 !important;
+  border-radius: 3px !important;
+  background: #9E9E9E !important;
+  color: #000 !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: normal !important;
+  border: none !important;
+  padding: 0 4px !important;
+  appearance: none !important;
+}
