@@ -21,17 +21,21 @@ async function ensureDB() {
   // структура гарантирована, но держим функцию, чтобы не переписывать все вызовы
   db.data.users      ??= [];
   db.data.portfolios ??= [];
+  await db.write();
 }
 
 // ─── E‑mail (Gmail app‑password) ───────────────────────────────────────────────
+const EMAIL_USER = process.env.EMAIL_USER || 'onlineportfolio42@gmail.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'bwmllfriorjxujiy';
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
-  auth: { user: 'onlineportfolio42@gmail.com', pass: 'Gupioshio_32' }
+  auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
 function genCode()           { return (100000 + Math.random()*900000 | 0).toString(); }
 const mailCode = async (to,c)=> transporter.sendMail({
-  from: 'onlineportfolio42@gmail.com',
+  from: EMAIL_USER,
   to,
   subject: 'Подтверждение регистрации',
   text: `Ваш код подтверждения: ${c}`
@@ -41,7 +45,13 @@ const mailCode = async (to,c)=> transporter.sendMail({
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Добавляем расширенные заголовки CORS для Render
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..')));
@@ -229,4 +239,5 @@ app.put('/api/users/:id/favorites', async (req,res)=>{
 });
 
 // ─── Старт сервера ────────────────────────────────────────────────────────────
-app.listen(PORT, () => console.log(`🟢 Server: http://localhost:${PORT}`));
+await ensureDB(); // Ensure DB is initialized before starting
+app.listen(PORT, '0.0.0.0', () => console.log(`🟢 Server: http://localhost:${PORT}`));
