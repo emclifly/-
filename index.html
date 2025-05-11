@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Онлайн Портфолио Программиста</title>
     <link rel="stylesheet" href="styles.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400&display=swap" rel="stylesheet" />
   </head>
   <body>
     <!-- Верхняя панель -->
@@ -19,29 +16,25 @@
       <div class="top-buttons">
         <span id="current-user"></span>
         <div id="auth-buttons">
-          <button id="reg-btn" class="primary">Регистрация</button>
-          <button id="login-btn" class="primary">Вход</button>
+          <button id="reg-btn" class="primary">Зарегистрироваться</button>
+          <button id="login-btn" class="primary">Войти</button>
         </div>
         <button id="profile-btn" class="primary" style="display:none;">Профиль</button>
         <button id="news-btn" class="primary">Новости</button>
+        <button id="create-profile-btn" class="primary" style="display:none;">Создать анкету</button>
       </div>
     </header>
 
     <!-- Информационный блок -->
     <section class="site-info">
-      <h2>Добро пожаловать на онлайн-портфолио программиста!</h2>
-      <p>
-        Этот портал создан для демонстрации профессиональных навыков, опыта
-        работы и проектов. Создавайте анкеты, редактируйте профиль и делитесь
-        достижениями!
-      </p>
+      <p class="site-info-text">Добро пожаловать на онлайн-портфолио программиста!<br><br>Этот портал создан для демонстрации профессиональных навыков, опыта работы и проектов. Создавайте анкеты, редактируйте профиль и делитесь достижениями!</p>
     </section>
 
     <!-- Поисковая секция -->
     <section class="search-section">
       <div class="search-bar">
         <input type="text" id="search-input" placeholder="Поиск анкет (ФИО)" />
-        <button id="filter-toggle" class="primary">Фильтр</button>
+        <button id="filter-toggle" class="primary"></button>
       </div>
       <!-- Расширенные опции фильтра -->
       <div id="filter-options" style="display:none;">
@@ -87,12 +80,19 @@
       <section class="portfolios">
         <h2>Анкеты пользователей</h2>
         <div id="portfolio-list" class="portfolio-list"></div>
-        <button id="create-profile-btn" class="create-button">Создать анкету</button>
       </section>
     </main>
 
     <!-- Контейнер уведомлений -->
     <div id="toast-container"></div>
+    <footer class="footer">
+      <p class="footer-question">Если у вас остались вопросы:</p>
+      <div class="footer-buttons">
+        <button class="social-btn vk"></button>
+        <button class="social-btn tg"></button>
+        <button class="social-btn email"></button>
+      </div>
+    </footer>
 
     <!-- Модальные окна -->
 
@@ -172,6 +172,11 @@
           <label>
             Пароль:
             <input type="password" name="password" required />
+            <span class="error-message"></span>
+          </label>
+          <label>
+            Повторите пароль:
+            <input type="password" name="confirm_password" required />
             <span class="error-message"></span>
           </label>
           <button type="submit" class="primary">Зарегистрироваться</button>
