@@ -23,7 +23,7 @@ async function ensureDB() {
   db.data.portfolios ??= [];
 }
 
-// ─── E‑mail (Gmail app‑password) ───────────────────────────────────────────────
+// ─── E‑mail (Gmail app‑password) ───────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: 'onlineportfolio42@gmail.com', pass: 'Gupioshio_32' }
@@ -39,7 +39,7 @@ const mailCode = async (to,c)=> transporter.sendMail({
 
 // ─── Express ───────────────────────────────────────────────────────────────────
 const app  = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
