@@ -112,19 +112,49 @@ button.delete:hover {
 
 /* Кнопка для создания анкеты */
 .create-button {
-  background: linear-gradient(145deg, #27ae60, #1e8449);
-  color: #fff;
-  font-size: 1.1em;
-  padding: 14px 28px;
-  margin: 30px auto;
+  position: relative;
+  margin: 30px auto !important;
+  padding: 10px 20px !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+  background-color: rgba(36, 36, 36, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #FFF;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: clamp(16px, 3vw, 20px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%;
   display: block;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-  border-radius: 6px;
+  box-shadow: none;
 }
 
 .create-button:hover {
-  background: linear-gradient(145deg, #1e8449, #27ae60);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+  background-color: rgba(60, 60, 60, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Profile button styling (assuming it uses #profile-btn or similar) */
+#profile-btn, .profile-btn, .top-buttons button:not(#news-btn):not(#login-btn):not(#reg-btn) {
+  position: relative;
+  margin: 0 10px !important;
+  padding: 10px 20px !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+  background-color: rgba(36, 36, 36, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #FFF;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: clamp(16px, 3vw, 20px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+#profile-btn:hover, .profile-btn:hover, .top-buttons button:not(#news-btn):not(#login-btn):not(#reg-btn):hover {
+  background-color: rgba(60, 60, 60, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Поисковая секция */
