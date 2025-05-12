@@ -513,10 +513,10 @@ button.delete:hover {
 #auth-buttons button,
 #news-btn {
   /* Reset default button look */
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
   cursor: pointer;
   color: #FFF;
   font-family: 'Montserrat Alternates', sans-serif;
@@ -530,27 +530,25 @@ button.delete:hover {
 #news-btn, #reg-btn, #login-btn {
   position: relative;
   margin: 0 10px !important;
-  padding: 8px 16px !important;
+  padding: 10px 20px !important;
   border-radius: 20px !important;
   transition: all 0.3s ease;
-  border: 1px solid transparent;
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(36, 36, 36, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 /* Add specific styling for each button to make them distinct */
 #reg-btn {
   margin-right: 15px !important;
-  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 #login-btn {
   margin-left: 15px !important; 
-  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Add subtle hover effect */
 #news-btn:hover, #reg-btn:hover, #login-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(60, 60, 60, 0.9) !important;
   border-color: rgba(255, 255, 255, 0.5);
 }
 
