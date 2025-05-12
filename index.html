@@ -6,22 +6,22 @@
     <title>Онлайн Портфолио Программиста</title>
     <link rel="stylesheet" href="styles.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image" href="Иконка.png">
   </head>
   <body>
     <!-- Верхняя панель -->
     <header class="top-bar">
       <div class="logo">
+        <img src="img/icon.png" alt="Logo" class="site-logo">
         <h1>Онлайн Портфолио</h1>
       </div>
       <div class="top-buttons">
         <span id="current-user"></span>
         <div id="auth-buttons">
-          <button id="reg-btn" class="primary">Зарегистрироваться</button>
-          <button id="login-btn" class="primary">Войти</button>
+          <button id="reg-btn">Зарегистрироваться</button>
+          <button id="login-btn">Войти</button>
         </div>
         <button id="profile-btn" class="primary" style="display:none;">Профиль</button>
-        <button id="news-btn" class="primary">Новости</button>
+        <button id="news-btn">Новости</button>
         <button id="create-profile-btn" class="primary" style="display:none;">Создать анкету</button>
       </div>
     </header>
@@ -35,7 +35,7 @@
     <section class="search-section">
       <div class="search-bar">
         <input type="text" id="search-input" placeholder="Поиск анкет (ФИО)" />
-        <button id="filter-toggle" class="primary"></button>
+        <button id="filter-toggle" class="primary"><img src="img/filter.png" alt="Filter"></button>
       </div>
       <!-- Расширенные опции фильтра -->
       <div id="filter-options" style="display:none;">
@@ -89,9 +89,8 @@
     <footer class="footer">
       <p class="footer-question">Если у вас остались вопросы:</p>
       <div class="footer-buttons">
-        <button class="social-btn vk"></button>
-        <button class="social-btn tg"></button>
-        <button class="social-btn email"></button>
+        <button class="social-btn tg"><img src="img/tg.png" alt="Telegram"></button>
+        <button class="social-btn email"><img src="img/mail.png" alt="Email"></button>
       </div>
     </footer>
 
