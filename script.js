@@ -767,4 +767,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  // Добавление обработчиков для кнопок социальных сетей в футере
+  document.addEventListener('DOMContentLoaded', function() {
+    // Telegram button
+    document.querySelector('.social-btn.tg').addEventListener('click', function() {
+      window.open('http://t.me/onlineportfoliofeedback_bot', '_blank');
+    });
+    
+    // Email button
+    document.querySelector('.social-btn.email').addEventListener('click', function() {
+      window.location.href = 'mailto:onlineportfolio42@gmail.com';
+    });
+  });
 });
