@@ -4,6 +4,7 @@
 
 body {
   margin: 0;
+  padding: 0;
   background: #000;
   color: #FFF;
   font-family: 'Montserrat Alternates', sans-serif;
@@ -24,16 +25,22 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 5%;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   box-shadow: 0 2px 6px rgba(255,255,255,0.2);
-  width: 100% !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
   margin: 0 !important;
+  padding-left: 5% !important;
+  padding-right: 5% !important;
   height: auto !important;
   min-height: 70px !important;
   flex-shrink: 0 !important;
   border-radius: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .top-buttons {
@@ -41,6 +48,7 @@ body {
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 .top-buttons span#current-user {
@@ -509,7 +517,6 @@ button.delete:hover {
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
-  margin: 0 !important;
   cursor: pointer;
   color: #FFF;
   font-family: 'Montserrat Alternates', sans-serif;
@@ -523,6 +530,28 @@ button.delete:hover {
 #news-btn, #reg-btn, #login-btn {
   position: relative;
   margin: 0 10px !important;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Add specific styling for each button to make them distinct */
+#reg-btn {
+  margin-right: 15px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#login-btn {
+  margin-left: 15px !important; 
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Add subtle hover effect */
+#news-btn:hover, #reg-btn:hover, #login-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Header title styling */
@@ -547,6 +576,7 @@ button.delete:hover {
   box-sizing: border-box !important;
   margin: 20px auto !important;
   padding: 40px 5% !important;
+  margin-top: 90px !important;
 }
 
 .site-info h2 {
