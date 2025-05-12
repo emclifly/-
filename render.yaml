@@ -3,7 +3,7 @@ services:
     name: online-portfolio
     env: node
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: npx serve .
     envVars:
       - key: PORT
         value: 3000
