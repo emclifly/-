@@ -662,6 +662,8 @@ document.addEventListener("DOMContentLoaded", () => {
       forgotLink.style.fontSize = "12px";
       forgotLink.style.marginLeft = "10px";
       forgotLink.style.cursor = "pointer";
+      forgotLink.style.color = "#4caf50"; // Зеленый цвет для лучшей видимости
+      forgotLink.style.fontWeight = "bold";
       
       forgotLink.addEventListener("click", (e) => {
         e.preventDefault();
@@ -1086,7 +1088,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="error"></span>
             </div>
             <div class="form-group">
-              <button type="submit">Отправить код восстановления</button>
+              <button type="submit" class="primary-button">Отправить&nbsp;код&nbsp;восстановления</button>
             </div>
           </form>
         </div>
@@ -1126,7 +1128,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="error"></span>
             </div>
             <div class="form-group">
-              <button type="submit">Сменить пароль</button>
+              <button type="submit" class="primary-button">Сменить пароль</button>
             </div>
           </form>
         </div>
@@ -1134,6 +1136,44 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     modalContainer.appendChild(resetConfirmModal);
   }
+
+  // Добавим стиль для кнопок восстановления пароля
+  const buttonStyles = document.createElement('style');
+  buttonStyles.textContent = `
+    .primary-button {
+      display: block !important;
+      margin: 40px auto !important;
+      width: 100% !important;
+      max-width: 370px !important;
+      height: 50px !important;
+      flex-shrink: 0 !important;
+      border-radius: 85px !important;
+      background: #000 !important;
+      border: 2px solid #FFF !important;
+      color: #fff !important;
+      font-family: 'Montserrat Alternates', sans-serif !important;
+      font-size: 16px !important;
+      font-style: normal !important;
+      font-weight: 400 !important;
+      line-height: 40px !important;
+      padding-bottom: 10px !important;
+      padding-top: 0 !important;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+      overflow: hidden !important;
+    }
+    .primary-button:hover {
+      background-color: #333 !important;
+    }
+    .primary-button:disabled {
+      background-color: #555 !important;
+      border-color: #999 !important;
+      cursor: not-allowed;
+    }
+  `;
+  document.head.appendChild(buttonStyles);
 
   // Обработчики форм восстановления пароля
   // Шаг 1: Запрос сброса пароля
