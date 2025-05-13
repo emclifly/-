@@ -185,6 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
           education: user.education,
           phone: user.phone
         };
+        
+        // Важно: сохраняем имя владельца отдельно, чтобы оно всегда было доступно
+        portfolioData.ownerName = user.name;
       }
       
       const res = await fetch(`${API_URL}/portfolios`, {
@@ -407,7 +410,11 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Если все попытки не удались, показываем упрощенную информацию
           const fallbackUserData = {
-            name: portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты",
+            // Используем сохраненное имя, если оно есть, иначе берем из текущего пользователя
+            // или в последнюю очередь из email
+            name: portfolio.ownerName || 
+                  (currentUser && currentUser.email === portfolio.owner ? currentUser.name : 
+                  (portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты")),
             photo: portfolio.photo || null,
             // Добавляем информацию, если это текущий пользователь
             ...(currentUser && currentUser.email === portfolio.owner ? {
@@ -423,7 +430,9 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("Ошибка при загрузке профиля:", error);
           // Показываем минимальную информацию в случае ошибки
           const minimalUserData = {
-            name: portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты",
+            // Также используем сохраненное имя владельца, если оно есть
+            name: portfolio.ownerName || 
+                  (portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты"),
             photo: portfolio.photo || null
           };
           showUserProfileModal(minimalUserData);
