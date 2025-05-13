@@ -262,6 +262,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // После других API функций добавим новые для восстановления пароля
+  async function requestPasswordResetAPI(email) {
+    try {
+      const res = await fetch(`${API_URL}/request-reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка запроса сброса пароля:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
+  async function resetPasswordAPI(email, code, newPassword) {
+    try {
+      const res = await fetch(`${API_URL}/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code, newPassword }),
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка сброса пароля:", err);
+      return { error: "Ошибка связи с сервером" };
+    }
+  }
+
   // ---------------------------------------------
   // ФУНКЦИЯ ПОЛУЧЕНИЯ+ФИЛЬТРАЦИИ+СОРТИРОВКИ АНКЕТ
   // ---------------------------------------------
@@ -623,6 +652,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------------------------
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
+    // Добавим ссылку для восстановления пароля
+    const passwordField = loginForm.querySelector('input[name="password"]');
+    if (passwordField && !document.getElementById("forgot-password-link")) {
+      const forgotLink = document.createElement("a");
+      forgotLink.id = "forgot-password-link";
+      forgotLink.href = "#";
+      forgotLink.textContent = "Забыли пароль?";
+      forgotLink.style.fontSize = "12px";
+      forgotLink.style.marginLeft = "10px";
+      forgotLink.style.cursor = "pointer";
+      
+      forgotLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        closeModal("modal-login");
+        openModal("modal-password-reset");
+      });
+      
+      passwordField.parentNode.appendChild(forgotLink);
+    }
+
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm(loginForm)) return;
@@ -902,7 +951,254 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailButton = document.querySelector('.social-btn.email');
   if (emailButton) {
     emailButton.addEventListener('click', function() {
-      window.location.href = 'mailto:onlineportfolio42@gmail.com';
+      // Создаем элемент для модального окна с email
+      const emailPopup = document.createElement('div');
+      emailPopup.className = 'email-popup';
+      emailPopup.innerHTML = `
+        <div class="email-popup-content">
+          <h3>Наш электронный адрес:</h3>
+          <p class="email-address">onlineportfolio42@gmail.com</p>
+          <div class="popup-buttons">
+            <button id="copy-email-btn">Копировать</button>
+            <button id="open-mail-btn">Открыть почтовый клиент</button>
+            <button id="close-popup-btn">Закрыть</button>
+          </div>
+        </div>
+      `;
+      
+      // Добавляем стили для попапа
+      const style = document.createElement('style');
+      style.textContent = `
+        .email-popup {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        .email-popup-content {
+          background-color: #222;
+          color: white;
+          padding: 20px;
+          border-radius: 5px;
+          text-align: center;
+          max-width: 90%;
+          width: 400px;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .email-address {
+          font-size: 18px;
+          font-weight: bold;
+          margin: 15px 0;
+          padding: 10px;
+          background-color: #333;
+          color: #fff;
+          border-radius: 3px;
+        }
+        .popup-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 15px;
+        }
+        .popup-buttons button {
+          padding: 8px 12px;
+          cursor: pointer;
+        }
+        #copy-email-btn {
+          background-color: #4caf50;
+          color: white;
+          border: none;
+        }
+        #open-mail-btn {
+          background-color: #2196f3;
+          color: white;
+          border: none;
+        }
+        #close-popup-btn {
+          background-color: #f44336;
+          color: white;
+          border: none;
+        }
+      `;
+      
+      document.head.appendChild(style);
+      document.body.appendChild(emailPopup);
+      
+      // Копирование email в буфер обмена
+      document.getElementById('copy-email-btn').addEventListener('click', function() {
+        const emailText = 'onlineportfolio42@gmail.com';
+        navigator.clipboard.writeText(emailText)
+          .then(() => {
+            showToast('Email скопирован в буфер обмена!', 'success');
+          })
+          .catch(err => {
+            showToast('Не удалось скопировать email', 'error');
+            console.error('Ошибка копирования: ', err);
+          });
+      });
+      
+      // Открытие почтового клиента
+      document.getElementById('open-mail-btn').addEventListener('click', function() {
+        window.location.href = 'mailto:onlineportfolio42@gmail.com';
+        closeEmailPopup();
+      });
+      
+      // Закрытие попапа
+      document.getElementById('close-popup-btn').addEventListener('click', closeEmailPopup);
+      
+      // Закрытие при клике вне попапа
+      emailPopup.addEventListener('click', function(e) {
+        if (e.target === emailPopup) {
+          closeEmailPopup();
+        }
+      });
+      
+      // Функция закрытия попапа
+      function closeEmailPopup() {
+        emailPopup.remove();
+      }
+    });
+  }
+
+  // Добавим модальные окна для восстановления пароля в HTML
+  const modalContainer = document.querySelector('body');
+  
+  // Проверим, существуют ли уже эти модальные окна
+  if (!document.getElementById("modal-password-reset")) {
+    const resetRequestModal = document.createElement("div");
+    resetRequestModal.className = "modal";
+    resetRequestModal.id = "modal-password-reset";
+    resetRequestModal.innerHTML = `
+      <div class="modal-content">
+        <span class="close" data-modal="modal-password-reset">&times;</span>
+        <div class="modal-content-inner">
+          <h2>Восстановление пароля</h2>
+          <form id="reset-request-form">
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" name="email" required>
+              <span class="error"></span>
+            </div>
+            <div class="form-group">
+              <button type="submit">Отправить код восстановления</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    modalContainer.appendChild(resetRequestModal);
+  }
+  
+  if (!document.getElementById("modal-password-reset-confirm")) {
+    const resetConfirmModal = document.createElement("div");
+    resetConfirmModal.className = "modal";
+    resetConfirmModal.id = "modal-password-reset-confirm";
+    resetConfirmModal.innerHTML = `
+      <div class="modal-content">
+        <span class="close" data-modal="modal-password-reset-confirm">&times;</span>
+        <div class="modal-content-inner">
+          <h2>Введите код и новый пароль</h2>
+          <form id="reset-confirm-form">
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" name="email" required readonly>
+              <span class="error"></span>
+            </div>
+            <div class="form-group">
+              <label for="code">Код из письма:</label>
+              <input type="text" name="code" required>
+              <span class="error"></span>
+            </div>
+            <div class="form-group">
+              <label for="new_password">Новый пароль:</label>
+              <input type="password" name="new_password" required>
+              <span class="error"></span>
+            </div>
+            <div class="form-group">
+              <label for="confirm_password">Подтвердите пароль:</label>
+              <input type="password" name="confirm_password" required>
+              <span class="error"></span>
+            </div>
+            <div class="form-group">
+              <button type="submit">Сменить пароль</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    modalContainer.appendChild(resetConfirmModal);
+  }
+
+  // Обработчики форм восстановления пароля
+  // Шаг 1: Запрос сброса пароля
+  const resetRequestForm = document.getElementById("reset-request-form");
+  if (resetRequestForm) {
+    resetRequestForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validateForm(resetRequestForm)) return;
+
+      const submitBtn = resetRequestForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      const email = resetRequestForm.querySelector('input[name="email"]').value;
+      const result = await requestPasswordResetAPI(email);
+      
+      if (result.error) {
+        showToast(result.error, "error");
+        submitBtn.disabled = false;
+      } else {
+        showToast("Код для сброса пароля отправлен на вашу почту", "success");
+        closeModal("modal-password-reset");
+        openModal("modal-password-reset-confirm");
+        
+        // Предзаполним поле email на следующем шаге
+        const confirmForm = document.getElementById("reset-confirm-form");
+        if (confirmForm) {
+          confirmForm.querySelector('input[name="email"]').value = email;
+        }
+      }
+    });
+  }
+
+  // Шаг 2: Подтверждение сброса пароля и установка нового
+  const resetConfirmForm = document.getElementById("reset-confirm-form");
+  if (resetConfirmForm) {
+    resetConfirmForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validateForm(resetConfirmForm)) return;
+
+      const submitBtn = resetConfirmForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      const email = resetConfirmForm.querySelector('input[name="email"]').value;
+      const code = resetConfirmForm.querySelector('input[name="code"]').value;
+      const newPassword = resetConfirmForm.querySelector('input[name="new_password"]').value;
+      const confirmPassword = resetConfirmForm.querySelector('input[name="confirm_password"]').value;
+      
+      // Проверка совпадения паролей
+      if (newPassword !== confirmPassword) {
+        resetConfirmForm.querySelector('input[name="confirm_password"]').nextElementSibling.textContent = 
+          "Пароли не совпадают";
+        submitBtn.disabled = false;
+        return;
+      }
+      
+      const result = await resetPasswordAPI(email, code, newPassword);
+      
+      if (result.error) {
+        showToast(result.error, "error");
+        submitBtn.disabled = false;
+      } else {
+        showToast("Пароль успешно изменен! Теперь вы можете войти.", "success");
+        closeModal("modal-password-reset-confirm");
+        openModal("modal-login");
+      }
     });
   }
 });
