@@ -172,6 +172,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function createPortfolioAPI(portfolioData) {
     try {
+      // Убедимся, что передаем больше информации о владельце
+      const user = getCurrentUser();
+      if (user) {
+        // Добавляем больше информации о пользователе
+        portfolioData.ownerInfo = {
+          name: user.name,
+          photo: user.photo,
+          age: user.age,
+          location: user.location,
+          experience: user.experience,
+          education: user.education,
+          phone: user.phone
+        };
+      }
+      
       const res = await fetch(`${API_URL}/portfolios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -200,6 +215,20 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Ошибка загрузки анкет:", err);
       return { error: "Ошибка связи с сервером. Возможно, сервер временно недоступен." };
+    }
+  }
+
+  // Новый эндпоинт для получения профиля по ID
+  async function getUserByIdAPI(userId) {
+    try {
+      const res = await fetch(`${API_URL}/users/${userId}`);
+      if (!res.ok) {
+        throw new Error(`Ошибка HTTP ${res.status}: ${res.statusText}`);
+      }
+      return await res.json();
+    } catch (err) {
+      console.error("Ошибка загрузки профиля:", err);
+      return { error: "Ошибка связи с сервером" };
     }
   }
 
@@ -343,48 +372,61 @@ document.addEventListener("DOMContentLoaded", () => {
       viewProfileBtn.textContent = "Профиль автора";
       viewProfileBtn.addEventListener("click", async () => {
         try {
-          // Вместо прямого запроса к API, используем имеющиеся данные
-          // или получаем информацию через другой доступный эндпоинт
-          const ownerEmail = portfolio.owner;
-          
-          if (!ownerEmail) {
-            throw new Error("Информация о владельце отсутствует");
-          }
-          
-          // Альтернативный подход - используем API логина для получения профиля
-          // через email (предполагая, что API поддерживает такой запрос)
-          const response = await fetch(`${API_URL}/user-by-email`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: ownerEmail }),
-          });
-          
-          if (!response.ok) {
-            // Если API недоступен или выдает ошибку, показываем базовую информацию
-            const basicUserData = {
-              name: portfolio.owner.split('@')[0] || "Пользователь",
-              photo: null,
-              // Другие поля будут пустыми, но это лучше чем ошибка
-            };
-            showUserProfileModal(basicUserData);
+          // Проверяем, есть ли сохраненные данные о профиле в самой анкете
+          if (portfolio.ownerInfo) {
+            showUserProfileModal(portfolio.ownerInfo);
             return;
           }
           
-          const userData = await response.json();
-          if (userData.error) {
-            throw new Error(userData.error);
-          } else {
-            showUserProfileModal(userData.user);
+          // Если нет сохраненных данных, пытаемся запросить через API
+          if (portfolio.ownerId) {
+            const userResult = await getUserByIdAPI(portfolio.ownerId);
+            if (!userResult.error && userResult.user) {
+              showUserProfileModal(userResult.user);
+              return;
+            }
           }
-        } catch (error) {
-          // Если все попытки не удались, покажем упрощенную информацию
-          // из данных портфолио
+          
+          // В крайнем случае, пытаемся использовать API для поиска по email
+          const ownerEmail = portfolio.owner;
+          if (ownerEmail) {
+            const response = await fetch(`${API_URL}/user-by-email`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: ownerEmail }),
+            });
+            
+            if (response.ok) {
+              const userData = await response.json();
+              if (!userData.error && userData.user) {
+                showUserProfileModal(userData.user);
+                return;
+              }
+            }
+          }
+          
+          // Если все попытки не удались, показываем упрощенную информацию
           const fallbackUserData = {
             name: portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты",
             photo: portfolio.photo || null,
+            // Добавляем информацию, если это текущий пользователь
+            ...(currentUser && currentUser.email === portfolio.owner ? {
+              age: currentUser.age,
+              location: currentUser.location,
+              experience: currentUser.experience,
+              education: currentUser.education,
+              phone: currentUser.phone
+            } : {})
           };
           showUserProfileModal(fallbackUserData);
+        } catch (error) {
           console.error("Ошибка при загрузке профиля:", error);
+          // Показываем минимальную информацию в случае ошибки
+          const minimalUserData = {
+            name: portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты",
+            photo: portfolio.photo || null
+          };
+          showUserProfileModal(minimalUserData);
         }
       });
       portfolioCard.appendChild(viewProfileBtn);
