@@ -337,6 +337,29 @@ document.addEventListener("DOMContentLoaded", () => {
         </p>
       `;
 
+      // Добавляем кнопку просмотра профиля пользователя
+      const viewProfileBtn = document.createElement("button");
+      viewProfileBtn.className = "profile-view-btn";
+      viewProfileBtn.textContent = "Профиль автора";
+      viewProfileBtn.addEventListener("click", async () => {
+        try {
+          // Запрос к API для получения информации о пользователе
+          const response = await fetch(`${API_URL}/users/${portfolio.ownerId}`);
+          if (!response.ok) {
+            throw new Error("Не удалось получить данные пользователя");
+          }
+          const userData = await response.json();
+          if (userData.error) {
+            showToast(userData.error, "error");
+          } else {
+            showUserProfileModal(userData.user);
+          }
+        } catch (error) {
+          showToast("Ошибка при загрузке профиля: " + error.message, "error");
+        }
+      });
+      portfolioCard.appendChild(viewProfileBtn);
+
       // Кнопка избранного (если анкета не моя)
       if (
         currentUser &&
@@ -447,6 +470,18 @@ document.addEventListener("DOMContentLoaded", () => {
     regForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!validateForm(regForm)) return;
+
+      // Проверка совпадения паролей
+      const password = regForm.querySelector('input[name="password"]').value;
+      const confirmPassword = regForm.querySelector('input[name="confirm_password"]').value;
+      const confirmPasswordError = regForm.querySelector('input[name="confirm_password"]').nextElementSibling;
+      
+      if (password !== confirmPassword) {
+        confirmPasswordError.textContent = "Пароли не совпадают";
+        return;
+      } else {
+        confirmPasswordError.textContent = "";
+      }
 
       const submitBtn = regForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
@@ -768,16 +803,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Добавление обработчиков для кнопок социальных сетей в футере
-  document.addEventListener('DOMContentLoaded', function() {
-    // Telegram button
-    document.querySelector('.social-btn.tg').addEventListener('click', function() {
-      window.open('http://t.me/onlineportfoliofeedback_bot', '_blank');
+  // ---------------------------------------------
+  // СОЦИАЛЬНЫЕ КНОПКИ
+  // ---------------------------------------------
+  // Telegram button
+  const tgButton = document.querySelector('.social-btn.tg');
+  if (tgButton) {
+    tgButton.addEventListener('click', function() {
+      window.open('https://t.me/onlineportfoliofeedback_bot', '_blank');
     });
-    
-    // Email button
-    document.querySelector('.social-btn.email').addEventListener('click', function() {
+  }
+  
+  // Email button
+  const emailButton = document.querySelector('.social-btn.email');
+  if (emailButton) {
+    emailButton.addEventListener('click', function() {
       window.location.href = 'mailto:onlineportfolio42@gmail.com';
     });
-  });
+  }
 });
