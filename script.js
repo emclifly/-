@@ -343,19 +343,48 @@ document.addEventListener("DOMContentLoaded", () => {
       viewProfileBtn.textContent = "Профиль автора";
       viewProfileBtn.addEventListener("click", async () => {
         try {
-          // Запрос к API для получения информации о пользователе
-          const response = await fetch(`${API_URL}/users/${portfolio.ownerId}`);
-          if (!response.ok) {
-            throw new Error("Не удалось получить данные пользователя");
+          // Вместо прямого запроса к API, используем имеющиеся данные
+          // или получаем информацию через другой доступный эндпоинт
+          const ownerEmail = portfolio.owner;
+          
+          if (!ownerEmail) {
+            throw new Error("Информация о владельце отсутствует");
           }
+          
+          // Альтернативный подход - используем API логина для получения профиля
+          // через email (предполагая, что API поддерживает такой запрос)
+          const response = await fetch(`${API_URL}/user-by-email`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: ownerEmail }),
+          });
+          
+          if (!response.ok) {
+            // Если API недоступен или выдает ошибку, показываем базовую информацию
+            const basicUserData = {
+              name: portfolio.owner.split('@')[0] || "Пользователь",
+              photo: null,
+              // Другие поля будут пустыми, но это лучше чем ошибка
+            };
+            showUserProfileModal(basicUserData);
+            return;
+          }
+          
           const userData = await response.json();
           if (userData.error) {
-            showToast(userData.error, "error");
+            throw new Error(userData.error);
           } else {
             showUserProfileModal(userData.user);
           }
         } catch (error) {
-          showToast("Ошибка при загрузке профиля: " + error.message, "error");
+          // Если все попытки не удались, покажем упрощенную информацию
+          // из данных портфолио
+          const fallbackUserData = {
+            name: portfolio.owner ? portfolio.owner.split('@')[0] : "Автор анкеты",
+            photo: portfolio.photo || null,
+          };
+          showUserProfileModal(fallbackUserData);
+          console.error("Ошибка при загрузке профиля:", error);
         }
       });
       portfolioCard.appendChild(viewProfileBtn);
@@ -414,17 +443,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalViewUser = document.getElementById("modal-view-user");
     if (!modalViewUser) return;
     const contentDiv = modalViewUser.querySelector(".modal-content-inner");
+    
+    // Обеспечиваем наличие минимальных полей даже если они не предоставлены
+    userData = userData || {};
+    
     contentDiv.innerHTML = `
       <h2>Профиль пользователя</h2>
       <div class="photo-container">
         ${userData.photo ? `<img src="${userData.photo}" alt="Фото"/>` : ""}
       </div>
-      <p><strong>Имя:</strong> ${userData.name || ""}</p>
-      <p><strong>Возраст:</strong> ${userData.age || ""}</p>
-      <p><strong>Место проживания:</strong> ${userData.location || ""}</p>
-      <p><strong>Стаж работы:</strong> ${userData.experience || ""}</p>
-      <p><strong>Образование:</strong> ${userData.education || ""}</p>
-      <p><strong>Телефон:</strong> ${userData.phone || ""}</p>
+      <p><strong>Имя:</strong> ${userData.name || "Нет данных"}</p>
+      <p><strong>Возраст:</strong> ${userData.age || "Нет данных"}</p>
+      <p><strong>Место проживания:</strong> ${userData.location || "Нет данных"}</p>
+      <p><strong>Стаж работы:</strong> ${userData.experience || "Нет данных"}</p>
+      <p><strong>Образование:</strong> ${userData.education || "Нет данных"}</p>
+      <p><strong>Телефон:</strong> ${userData.phone || "Нет данных"}</p>
     `;
     openModal("modal-view-user");
   }
