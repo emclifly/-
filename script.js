@@ -1241,4 +1241,72 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // ---------------------------------------------
+  // МОБИЛЬНОЕ МЕНЮ
+  // ---------------------------------------------
+  function setupMobileMenu() {
+    const topBar = document.querySelector('.top-bar');
+    if (!topBar) return;
+    
+    // Create hamburger menu if it doesn't exist
+    if (!document.querySelector('.hamburger-menu')) {
+      // Create a top bar container div
+      const hamburger = document.createElement('div');
+      hamburger.className = 'hamburger-menu';
+      hamburger.innerHTML = `<span></span><span></span><span></span>`;
+      
+      // Add hamburger directly to top-bar instead of inside logo
+      topBar.appendChild(hamburger);
+      
+      // Add click event to toggle menu
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        topBar.classList.toggle('expanded');
+        document.body.classList.toggle('menu-expanded');
+        
+        // Add aria attributes for accessibility
+        const expanded = topBar.classList.contains('expanded');
+        hamburger.setAttribute('aria-expanded', expanded);
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (topBar.classList.contains('expanded') && 
+            !topBar.contains(e.target) ||
+            (topBar.contains(e.target) && !hamburger.contains(e.target) && 
+             e.target.tagName !== 'BUTTON')) {
+          topBar.classList.remove('expanded');
+          document.body.classList.remove('menu-expanded');
+          hamburger.setAttribute('aria-expanded', 'false');
+        }
+      });
+      
+      // Close menu when window is resized to desktop size
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && topBar.classList.contains('expanded')) {
+          topBar.classList.remove('expanded');
+          document.body.classList.remove('menu-expanded');
+          hamburger.setAttribute('aria-expanded', 'false');
+        }
+      });
+      
+      // Add aria attributes
+      hamburger.setAttribute('role', 'button');
+      hamburger.setAttribute('aria-label', 'Menu');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.setAttribute('tabindex', '0');
+      
+      // Add keyboard support
+      hamburger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          hamburger.click();
+        }
+      });
+    }
+  }
+  
+  // Call the function to set up mobile menu
+  setupMobileMenu();
 });
