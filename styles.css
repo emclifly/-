@@ -21,9 +21,10 @@ body {
 /* Верхняя панель */
 .top-bar {
   background: #242424 !important;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
   padding: 15px 5%;
   position: fixed;
   top: 0;
@@ -31,7 +32,7 @@ body {
   right: 0;
   z-index: 1000;
   box-shadow: 0 2px 6px rgba(255,255,255,0.2);
-  width: 100vw !important;
+  width: 100% !important;
   max-width: 100vw !important;
   margin: 0 !important;
   padding-left: 5% !important;
@@ -43,17 +44,35 @@ body {
   box-sizing: border-box !important;
 }
 
+.logo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
 .top-buttons {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  text-align: right !important;
+  margin-left: auto !important;
+  width: auto !important;
 }
 
 .top-buttons span#current-user {
   margin-right: 10px;
   font-weight: 500;
+}
+
+/* Auth buttons container */
+#auth-buttons {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+  margin-left: auto !important;
 }
 
 /* Стандартные кнопки */
@@ -304,7 +323,7 @@ button.delete:hover {
 .portfolio-card button.secondary,
 .portfolio-card button.delete {
   width: 100%;
-  max-width: 275px;
+  max-width: 100%;
   height: 50px;
   flex-shrink: 0;
   border-radius: 85px;
@@ -559,21 +578,24 @@ button.delete:hover {
 
 #news-btn, #reg-btn, #login-btn {
   position: relative;
-  margin: 0 10px !important;
+  margin: 0 5px !important;
   padding: 10px 20px !important;
   border-radius: 20px !important;
   transition: all 0.3s ease;
   background-color: rgba(36, 36, 36, 0.9) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  display: inline-block !important;
+  text-align: center !important;
+  float: none !important;
 }
 
 /* Add specific styling for each button to make them distinct */
 #reg-btn {
-  margin-right: 15px !important;
+  margin-right: 5px !important;
 }
 
 #login-btn {
-  margin-left: 15px !important; 
+  margin-left: 5px !important;
 }
 
 /* Add subtle hover effect */
@@ -619,6 +641,8 @@ button.delete:hover {
 
 /* Footer question styling */
 .footer .footer-question {
+  text-align: center;
+  margin-left: 0;
   margin-top: 20px;
   margin-bottom: 20px !important;
   color: #FFF;
@@ -631,6 +655,8 @@ button.delete:hover {
 
 /* Footer social buttons styling */
 .footer .footer-buttons {
+  justify-content: center;
+  margin-left: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
@@ -882,27 +908,146 @@ button.delete:hover {
   font-size: 18px;
 }
 
-/* Мобильная версия */
+/* Mobile version styles */
 @media (max-width: 768px) {
+  /* Adjust logo size for mobile */
+  .site-logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+  }
+  
   .top-bar {
-    flex-direction: column;
-    padding: 10px;
+    position: static;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    padding: 5px 10px;
+    height: auto !important;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: none;
+    min-height: 45px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+  
+  .top-bar.expanded {
+    max-height: none;
+    padding-bottom: 15px;
+  }
+  
+  /* Adjust header layout */
+  .top-bar .logo {
+    width: 100% !important;
+    max-width: calc(100% - 45px) !important; /* Allow space for hamburger */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden;
+    margin-bottom: 10px !important;
+    position: relative !important;
   }
   
   .top-bar .logo h1 {
-    text-align: center;
-    width: 100%;
+    text-align: center !important;
+    font-size: 24px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    padding: 5px 0;
+    font-weight: 600 !important;
   }
   
+  /* Position hamburger menu at the right edge of header */
+  .hamburger-menu {
+    display: block;
+    cursor: pointer;
+    width: 25px;
+    height: 25px;
+    position: absolute !important;
+    right: 15px !important;
+    top: 12px !important; /* Fixed position at top */
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  
+  .hamburger-menu span {
+    display: block;
+    position: absolute;
+    height: 2px;
+    width: 100%;
+    background: #FFF;
+    border-radius: 2px;
+    opacity: 1;
+    left: 0;
+    transform: rotate(0deg);
+    transition: .25s ease-in-out;
+  }
+  
+  .hamburger-menu span:nth-child(1) {
+    top: 0px;
+  }
+  
+  .hamburger-menu span:nth-child(2) {
+    top: 9px;
+  }
+  
+  .hamburger-menu span:nth-child(3) {
+    top: 18px;
+  }
+  
+  .expanded .hamburger-menu span:nth-child(1) {
+    top: 9px;
+    transform: rotate(135deg);
+  }
+  
+  .expanded .hamburger-menu span:nth-child(2) {
+    opacity: 0;
+    left: -60px;
+  }
+  
+  .expanded .hamburger-menu span:nth-child(3) {
+    top: 9px;
+    transform: rotate(-135deg);
+  }
+  
+  /* Fix: Mobile buttons should be below hamburger */
   .top-buttons {
-    width: 100%;
-    justify-content: center;
-    margin-top: 10px;
+    width: 100% !important;
+    justify-content: center !important;
+    margin-top: 5px !important;
+    display: none !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    order: 3 !important;
+    margin-left: 0 !important;
+    clear: both !important;
   }
   
-  #news-btn, #reg-btn, #login-btn {
+  /* Only show buttons when menu is expanded */
+  .top-bar.expanded .top-buttons {
+    display: flex !important;
+  }
+  
+  #auth-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    align-items: center !important;
+    margin-left: 0 !important;
+  }
+  
+  #news-btn, #reg-btn, #login-btn, #profile-btn, .profile-btn, .top-buttons button:not(#news-btn):not(#login-btn):not(#reg-btn) {
     position: static !important;
-    margin: 10px !important;
+    margin: 5px auto !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    float: none !important;
+    box-sizing: border-box !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
   }
   
   .search-bar {
@@ -939,11 +1084,30 @@ button.delete:hover {
     justify-content: center;
     margin-left: 0;
   }
+  
+  /* No need for margin-top since header is not fixed */
+  .site-info {
+    margin-top: 10px !important;
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+  
+  /* Ensure content doesn't get hidden when menu expands */
+  body.menu-expanded .site-info {
+    margin-top: 10px !important;
+    transition: margin-top 0.3s ease;
+  }
 }
 
 @media (max-width: 480px) {
   .top-bar .logo h1 {
-    font-size: 20px !important;
+    font-size: 14px !important;
+  }
+  
+  .site-logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 6px;
   }
   
   .search-section.expanded #filter-options .filter-group {
