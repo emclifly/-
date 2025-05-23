@@ -71,11 +71,46 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("profile-btn").style.display = "inline-block";
       document.getElementById("create-profile-btn").style.display = "inline-block";
       document.getElementById("auth-buttons").style.display = "none";
+      
+      // Добавляем кнопку выхода в мобильную версию, если ее еще нет
+      if (!document.getElementById("mobile-logout-btn")) {
+        const mobileLogoutBtn = document.createElement("button");
+        mobileLogoutBtn.id = "mobile-logout-btn";
+        mobileLogoutBtn.className = "secondary";
+        mobileLogoutBtn.textContent = "Выйти";
+        mobileLogoutBtn.addEventListener("click", () => {
+          clearCurrentUser();
+          showToast("Вы вышли из системы.");
+          updateCurrentUserName();
+          filterAndRenderPortfolios();
+          
+          // Закрываем мобильное меню
+          const topBar = document.querySelector('.top-bar');
+          if (topBar) {
+            topBar.classList.remove('expanded');
+            document.body.classList.remove('menu-expanded');
+            const hamburger = document.querySelector('.hamburger-menu');
+            if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+          }
+        });
+        
+        // Добавляем кнопку после текущих кнопок в top-buttons
+        const topButtons = document.querySelector('.top-buttons');
+        if (topButtons) topButtons.appendChild(mobileLogoutBtn);
+      }
+      
+      // Показываем кнопку выхода на мобильной версии
+      const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
+      if (mobileLogoutBtn) mobileLogoutBtn.style.display = "inline-block";
     } else {
       userSpan.textContent = "";
       document.getElementById("profile-btn").style.display = "none";
       document.getElementById("create-profile-btn").style.display = "none";
       document.getElementById("auth-buttons").style.display = "flex";
+      
+      // Скрываем кнопку выхода на мобильной версии
+      const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
+      if (mobileLogoutBtn) mobileLogoutBtn.style.display = "none";
     }
   }
   updateCurrentUserName();
