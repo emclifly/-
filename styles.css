@@ -576,17 +576,41 @@ button.delete:hover {
   letter-spacing: 0;
 }
 
-#news-btn, #reg-btn, #login-btn {
-  position: relative;
-  margin: 0 5px !important;
-  padding: 10px 20px !important;
-  border-radius: 20px !important;
-  transition: all 0.3s ease;
-  background-color: rgba(36, 36, 36, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  display: inline-block !important;
-  text-align: center !important;
+#news-btn, #reg-btn, #login-btn, #profile-btn, .profile-btn, .top-buttons button:not(#news-btn):not(#login-btn):not(#reg-btn) {
+  position: static !important;
+  margin: 5px auto !important;
+  width: 100% !important;
+  max-width: 300px !important;
   float: none !important;
+  box-sizing: border-box !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+/* Стили для кнопки выхода в мобильной версии */
+#mobile-logout-btn {
+  position: static !important;
+  margin: 5px auto !important;
+  width: 100% !important;
+  max-width: 300px !important;
+  box-sizing: border-box !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  background: linear-gradient(145deg, #e74c3c, #c0392b) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+  border-radius: 20px !important;
+  font-family: 'Montserrat Alternates', sans-serif !important;
+  font-size: 16px !important;
+  padding: 10px 16px !important;
+  display: none; /* По умолчанию скрыта */
+}
+
+#mobile-logout-btn:hover {
+  background: linear-gradient(145deg, #c0392b, #e74c3c) !important;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3) !important;
 }
 
 /* Add specific styling for each button to make them distinct */
