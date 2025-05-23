@@ -577,15 +577,21 @@ button.delete:hover {
 }
 
 #news-btn, #reg-btn, #login-btn, #profile-btn, .profile-btn, .top-buttons button:not(#news-btn):not(#login-btn):not(#reg-btn) {
-  position: static !important;
-  margin: 5px auto !important;
-  width: 100% !important;
-  max-width: 300px !important;
-  float: none !important;
-  box-sizing: border-box !important;
-  text-overflow: ellipsis !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
+  position: relative;
+  margin: 0 5px !important;
+  padding: 10px 20px !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+  background-color: rgba(36, 36, 36, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #FFF;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: clamp(16px, 3vw, 20px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%;
+  display: inline-block !important;
+  text-align: center !important;
 }
 
 /* Стили для кнопки выхода в мобильной версии */
@@ -611,15 +617,6 @@ button.delete:hover {
 #mobile-logout-btn:hover {
   background: linear-gradient(145deg, #c0392b, #e74c3c) !important;
   box-shadow: 0 6px 10px rgba(0,0,0,0.3) !important;
-}
-
-/* Add specific styling for each button to make them distinct */
-#reg-btn {
-  margin-right: 5px !important;
-}
-
-#login-btn {
-  margin-left: 5px !important;
 }
 
 /* Add subtle hover effect */
@@ -925,9 +922,9 @@ button.delete:hover {
   background: rgba(30, 30, 30, 0.8);
 }
 
-/* Add a small icon or indicator for the profile button */
+/* Fix emoji issues */
 .portfolio-card .profile-view-btn::before {
-  content: '👤';
+  content: '\1F464'; /* Unicode для эмодзи человека */
   margin-right: 8px;
   font-size: 18px;
 }
@@ -1040,7 +1037,7 @@ button.delete:hover {
   .top-buttons {
     width: 100% !important;
     justify-content: center !important;
-    margin-top: 5px !important;
+    margin-top: 10px !important;
     display: none !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -1049,7 +1046,6 @@ button.delete:hover {
     clear: both !important;
   }
   
-  /* Only show buttons when menu is expanded */
   .top-bar.expanded .top-buttons {
     display: flex !important;
   }
@@ -1062,16 +1058,59 @@ button.delete:hover {
     margin-left: 0 !important;
   }
   
-  #news-btn, #reg-btn, #login-btn, #profile-btn, .profile-btn, .top-buttons button:not(#news-btn):not(#login-btn):not(#reg-btn) {
+  #news-btn, #reg-btn, #login-btn, #profile-btn, #create-profile-btn, #mobile-logout-btn {
+    width: 90% !important;
+    max-width: 280px !important;
+    margin: 6px auto !important;
+    padding: 12px 10px !important;
+    height: auto !important;
+    font-size: 16px !important;
+    text-align: center !important;
     position: static !important;
-    margin: 5px auto !important;
-    width: 100% !important;
-    max-width: 300px !important;
-    float: none !important;
+    border-radius: 20px !important;
+    display: block !important;
     box-sizing: border-box !important;
-    text-overflow: ellipsis !important;
-    overflow: hidden !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+  }
+  
+  /* Специфические стили для кнопок авторизации */
+  #auth-buttons button {
+    width: 90% !important;
+    margin: 6px auto !important;
+  }
+  
+  /* Управление порядком элементов */
+  #news-btn {
+    order: 1 !important;
+  }
+  
+  #profile-btn {
+    order: 2 !important;
+  }
+  
+  #create-profile-btn {
+    order: 3 !important;
+  }
+  
+  #mobile-logout-btn {
+    order: 4 !important;
+  }
+  
+  #auth-buttons {
+    order: 5 !important;
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  /* Обеспечим, чтобы текст на кнопке регистрации был виден полностью */
+  #reg-btn {
+    line-height: 1.2 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    letter-spacing: -0.5px !important;
+    padding: 12px 8px !important;
+    font-size: 15px !important;
   }
   
   .search-bar {
@@ -1120,6 +1159,40 @@ button.delete:hover {
   body.menu-expanded .site-info {
     margin-top: 10px !important;
     transition: margin-top 0.3s ease;
+  }
+  
+  #reg-btn {
+    font-size: 14px !important;
+    padding: 10px 5px !important;
+    height: auto !important;
+    line-height: 1.2 !important;
+    word-wrap: break-word !important;
+  }
+  
+  .top-buttons {
+    display: none !important;
+    flex-direction: column !important;
+  }
+  
+  #news-btn {
+    order: 1 !important;
+  }
+  
+  #profile-btn {
+    order: 2 !important;
+  }
+  
+  #create-profile-btn {
+    order: 3 !important;
+  }
+  
+  #mobile-logout-btn {
+    order: 4 !important;
+  }
+  
+  #auth-buttons {
+    order: 5 !important;
+    width: 100% !important;
   }
 }
 
@@ -1196,4 +1269,13 @@ button.delete:hover {
   height: 30px;
   display: block;
   object-fit: contain;
+}
+
+/* Add specific styling for each button to make them distinct */
+#reg-btn {
+  margin-right: 5px !important;
+}
+
+#login-btn {
+  margin-left: 5px !important;
 }
